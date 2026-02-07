@@ -91,7 +91,9 @@
     <menuitem id="menu_geracad_certificados_root"
               name="Certificados"
               action="action_geracad_certificados_curso"
-              sequence="50"/>
+              sequence="50"
+              web_icon="geracad_certificados,static/description/icon.png"
+              groups="geracad_certificados.group_geracad_certificados_user"/>
 
   </data>
 </odoo>

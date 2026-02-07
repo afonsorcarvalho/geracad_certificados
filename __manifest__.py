@@ -14,6 +14,7 @@
     'depends': ['base', 'web', 'geracad_curso'],
     'external_dependencies': {'python': ['Pillow']},
     'data': [
+        'security/geracad_certificados_security.xml',
         'security/ir.model.access.csv',
         'views/geracad_certificados_views.xml',
         'views/res_partner_professor_inherit_view.xml',

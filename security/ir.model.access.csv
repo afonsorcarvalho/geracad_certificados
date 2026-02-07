@@ -1,3 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_geracad_certificados_curso_user,geracad.certificados.curso.user,model_geracad_certificados_curso,base.group_user,1,1,1,1
-access_geracad_certificados_curso_aluno_user,geracad.certificados.curso.aluno.user,model_geracad_certificados_curso_aluno,base.group_user,1,1,1,1
+access_geracad_certificados_curso_user,geracad.certificados.curso.user,model_geracad_certificados_curso,geracad_certificados.group_geracad_certificados_user,1,1,1,1
+access_geracad_certificados_curso_aluno_user,geracad.certificados.curso.aluno.user,model_geracad_certificados_curso_aluno,geracad_certificados.group_geracad_certificados_user,1,1,1,1
