@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <!-- Relatório PDF do certificado (modelo: linha curso-aluno; um PDF por aluno) -->
+    <record id="action_report_certificado" model="ir.actions.report">
+      <field name="name">Certificado</field>
+      <field name="model">geracad.certificados.curso.aluno</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">geracad_certificados.report_certificado_template</field>
+      <field name="report_file">geracad_certificados.report_certificado_template</field>
+      <field name="attachment_use" eval="False"/>
+      <field name="print_report_name">'Certificado - %s - %s' % (object.nome_aluno, object.curso_id.name)</field>
+      <field name="paperformat_id" ref="paperformat_certificado"/>
+      <field name="binding_model_id" ref="model_geracad_certificados_curso_aluno"/>
+      <field name="help">Certificado do curso (frente e verso com QR para verificação)</field>
+    </record>
+  </data>
+</odoo>

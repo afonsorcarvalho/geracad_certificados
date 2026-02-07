@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Formato A4 paisagem para o certificado (frente) -->
+  <record id="paperformat_certificado" model="report.paperformat">
+    <field name="name">Certificado A4 Paisagem</field>
+    <field name="default" eval="False"/>
+    <field name="format">A4</field>
+    <field name="orientation">Landscape</field>
+    <field name="dpi">90</field>
+    <field name="margin_top">5</field>
+    <field name="margin_bottom">5</field>
+    <field name="margin_left">5</field>
+    <field name="margin_right">5</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">20</field>
+  </record>
+
+  <!-- Template do certificado: frente (layout elegante) + verso (conteúdo programático) -->
+  <template id="report_certificado_template">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <div class="page certificado-wrapper">
+            <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+            <style>
+              /* Frente: fundo e ornamentos só na primeira página; verso: só texto, sem figuras. Fonte: Libre Baskerville (serif). */
+              .certificado-wrapper { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; background: #fff; }
+              .pagina-frente { position: relative; height: 100%; min-height: 100%; page-break-after: always; overflow: hidden; }
+              .pagina-frente .img-fundo { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+              .certificado-frente { position: relative; z-index: 1; padding: 50px 60px 40px; text-align: center; }
+              .certificado-frente .canto { position: absolute; width: 100px; height: 100px; }
+              .certificado-frente .canto-tl { top: 20px; left: 20px; }
+              .certificado-frente .canto-tr { top: 20px; right: 20px; transform: scaleX(-1); }
+              .certificado-frente .canto-bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+              .certificado-frente .canto-br { bottom: 20px; right: 20px; transform: scale(-1); }
+              .certificado-frente .titulo-principal { font-size: 54px; font-weight: bold; color: #1a1a1a; margin: 60px 0 12px; letter-spacing: 5px; }
+              .certificado-frente .frase-intro { font-size: 32px; color: #333; margin: 60px 0 32px; }
+              .certificado-frente .nome-aluno { font-size: 32px; font-weight: bold; color: #1e3a5f; margin: 0 0 20px; text-transform: uppercase; letter-spacing: 1px; }
+              .certificado-frente .paragrafo-treinamento { font-size: 24px; color: #333; line-height: 1.6; max-width: 92%; margin: 0 auto 32px; text-align: justify; }
+              .certificado-frente .paragrafo-treinamento strong { color: #1a1a1a; }
+              .certificado-frente .bloco-assinatura { margin-top: 100px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: nowrap; width: 100%; max-width: 95%; margin-left: auto; margin-right: auto; }
+              .certificado-frente .selo {position: absolute; top: 620px; right: 1000px;  width: 120px; text-align: left; }
+              .certificado-frente .logo-empresa { position: absolute; top: 640px; right: 100px; width: 240px; text-align: right; }
+              .certificado-frente .assinatura-centro { text-align: center; min-width: 200px; flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; }
+              .certificado-frente .bloco-duas-assinaturas { margin-bottom: 10px; }
+              .certificado-frente .bloco-duas-assinaturas table { margin: 0 auto; border-collapse: collapse; }
+              .certificado-frente .bloco-duas-assinaturas td { padding: 0 24px; vertical-align: top; text-align: center; }
+              .certificado-frente .assinatura-item { text-align: center; min-width: 160px; }
+              .certificado-frente .linha-assinatura { border: none; border-bottom: 1px solid #1a1a1a; width: 100%; max-width: 240px; margin: 0 auto 6px; display: block; }
+              .certificado-frente .nome-instrutor, .certificado-frente .nome-responsavel { font-size: 12px; color: #1a1a1a; margin: 0; text-transform: uppercase; }
+              .certificado-frente .cargo-instrutor, .certificado-frente .cargo-responsavel { font-size: 11px; color: #555; margin: 4px 0 0; }
+              .certificado-frente .qr-verificacao { margin-top: 10px; font-size: 9px; color: #666; }
+            </style>
+
+            <!-- Página 1: Frente (fundo e ornamentos só aqui) -->
+            <div class="pagina-frente">
+              <img class="img-fundo" t-att-src="o._get_certificado_fundo_data_uri()" alt="" role="presentation"/>
+              <div class="certificado-frente">
+              
+        
+
+              <h1 class="titulo-principal">CERTIFICADO</h1>
+              <p class="frase-intro">Certificamos que, para os devidos fins</p>
+              <p class="nome-aluno"><t t-esc="o.nome_aluno"/></p>
+              <p class="paragrafo-treinamento">
+                concluiu o treinamento <strong t-esc="o.curso_id.name"/> com carga horária de <strong><t t-esc="o.curso_id.carga_horaria"/> horas</strong> no período de <strong t-esc="o.curso_id.get_periodo_display()"/>.</p>
+
+              <div class="bloco-assinatura">
+                <div class="selo">
+                  <img t-att-src="o._get_selo_data_uri()" alt="" style="width: 120px; height: 150px;"/>
+                </div>
+                <div class="assinatura-centro">
+                  <div class="bloco-duas-assinaturas">
+                    <table style="margin: 0 auto; border: none;"><tr>
+                      <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
+                        <!-- Assinatura já gravada em PNG (fundo removido no formulário); senão usa foto do instrutor -->
+                        <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
+                        <t t-if="img_instrutor">
+                          <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px; margin-bottom: 4px;"/>
+                        </t>
+                        <hr class="linha-assinatura"/>
+                        <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
+                        <p class="cargo-instrutor">Instrutor</p>
+                      </td>
+                      <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
+                        <t t-set="img_resp" t-value="o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.responsavel_tecnico_id and o.curso_id.responsavel_tecnico_id.image_1920)"/>
+                        <t t-if="img_resp">
+                          <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px; margin-bottom: 4px;"/>
+                        </t>
+                        <hr class="linha-assinatura"/>
+                        <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
+                        <p class="cargo-responsavel">Responsável técnico</p>
+                      </td>
+                    </tr></table>
+                  </div>
+                  <t t-set="qrb64" t-value="o.get_qrcode_base64()"/>
+                  <t t-if="qrb64">
+                    <div class="qr-verificacao">
+                      <img t-att-src="'data:image/png;base64,' + qrb64" alt="QR" style="width: 70px; height: 70px; display: block; margin: 0 auto 2px;"/>
+                      Verificação de autenticidade<br/>
+                      <span style="font-size: 10px; word-break: break-all;"><t t-esc="o.token"/></span>
+                    </div>
+                  </t>
+                </div>
+                <div class="logo-empresa">
+                  <t t-if="request.env.company.logo">
+                    <img t-att-src="image_data_uri(request.env.company.logo)" alt="Logo" style="max-width: 240px; max-height: 120px;"/>
+                  </t>
+                  <t t-else="">
+                    <p style="font-size: 14px; font-weight: bold; color: #1e3a5f; margin: 0;"><t t-esc="request.env.company.name"/></p>
+                  </t>
+                </div>
+              </div>
+              </div>
+            </div>
+
+            <!-- Página 2: Verso – apenas texto, sem figuras -->
+            <div class="certificado-verso" style="page-break-before: always; padding: 40px; font-family: 'Libre Baskerville', Georgia, serif; background: #fff;">
+              <h3 style="margin-bottom: 16px; font-size: 14px;">Conteúdo programático</h3>
+              <div class="conteudo-programatico" style="font-size: 11px; line-height: 1.5;">
+                <t t-if="o.curso_id.conteudo_programatico">
+                  <div t-field="o.curso_id.conteudo_programatico"/>
+                </t>
+                <t t-else="">
+                  <p><em>Conteúdo não informado.</em></p>
+                </t>
+              </div>
+            </div>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

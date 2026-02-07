@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <!-- Página exibida quando o certificado é válido (rota /certificados/verificar/<token>). HTML completo para auth=public. -->
+    <template id="certificado_verificar_page">
+      <html>
+        <head><meta charset="utf-8"/><title>Verificação de Certificado</title></head>
+        <body>
+      <div id="wrap" style="font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem;">
+        <div style="border: 1px solid #28a745; border-radius: 4px;">
+          <div style="background: #28a745; color: white; padding: 12px; display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <strong>Certificado válido</strong>
+          </div>
+          <div style="padding: 16px;">
+            <p>O certificado consultado é autêntico.</p>
+            <dl style="display: grid; grid-template-columns: 120px 1fr; gap: 8px 16px;">
+              <dt style="margin: 0;">Aluno</dt>
+              <dd style="margin: 0; text-transform: uppercase;" t-esc="nome_aluno"/>
+              <dt style="margin: 0;">Curso</dt>
+              <dd style="margin: 0;" t-esc="curso.name"/>
+              <dt style="margin: 0;">Período</dt>
+              <dd style="margin: 0;">
+                <t t-if="curso.get_periodo_display()" t-esc="curso.get_periodo_display()"/>
+                <t t-else="">—</t>
+              </dd>
+              <dt style="margin: 0;">Carga horária</dt>
+              <dd style="margin: 0;">
+                <t t-if="curso.carga_horaria" t-esc="'%s horas' % curso.carga_horaria"/>
+                <t t-else="">—</t>
+              </dd>
+              <dt style="margin: 0;">Instrutor</dt>
+              <dd style="margin: 0; text-transform: uppercase;" t-esc="curso.instrutor_id.name if curso.instrutor_id else '—'"/>
+              <dt style="margin: 0;">Responsável técnico</dt>
+              <dd style="margin: 0; text-transform: uppercase;" t-esc="curso.responsavel_tecnico_id.name if curso.responsavel_tecnico_id else '—'"/>
+              <dt style="margin: 0;">Token</dt>
+              <dd style="margin: 0; font-family: monospace; font-size: 11px; word-break: break-all;" t-esc="linha.token"/>
+            </dl>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #dee2e6;"/>
+            <p style="margin: 0 0 8px; font-weight: bold;">Dados da empresa</p>
+            <t t-if="company_logo_data_uri">
+              <div style="margin-bottom: 16px;">
+                <img t-att-src="company_logo_data_uri" alt="Logo" style="max-width: 200px; max-height: 80px; object-fit: contain;"/>
+              </div>
+            </t>
+            <dl style="display: grid; grid-template-columns: 120px 1fr; gap: 8px 16px;">
+              <dt style="margin: 0;">Razão social</dt>
+              <dd style="margin: 0;" t-esc="company_nome"/>
+              <dt style="margin: 0;">CNPJ</dt>
+              <dd style="margin: 0;" t-esc="company_cnpj or '—'"/>
+              <dt style="margin: 0;">Endereço</dt>
+              <dd style="margin: 0;" t-esc="endereco_completo or '—'"/>
+              <dt style="margin: 0;">Telefone</dt>
+              <dd style="margin: 0;" t-esc="company_telefone or '—'"/>
+            </dl>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #dee2e6;"/>
+            <h3 style="margin: 0 0 12px; font-size: 14px;">Conteúdo programático</h3>
+            <div style="font-size: 12px; line-height: 1.5; color: #333;">
+              <t t-if="curso.conteudo_programatico">
+                <div t-raw="curso.conteudo_programatico"/>
+              </t>
+              <t t-else="">
+                <p style="margin: 0; font-style: italic; color: #666;">Conteúdo não informado.</p>
+              </t>
+            </div>
+          </div>
+        </div>
+      </div>
+        </body>
+      </html>
+    </template>
+
+    <!-- Página exibida quando o token não existe (redirect /certificados/nao-encontrado) -->
+    <template id="certificado_nao_encontrado_page">
+      <html>
+        <head><meta charset="utf-8"/><title>Certificado não encontrado</title></head>
+        <body>
+      <div id="wrap" style="font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem;">
+        <div style="border: 1px solid #ffc107; border-radius: 4px;">
+          <div style="background: #ffc107; padding: 12px;">
+            <strong>Certificado não encontrado</strong>
+          </div>
+          <div style="padding: 16px;">
+            <p>O link consultado não corresponde a um certificado válido ou o registro não existe.</p>
+          </div>
+        </div>
+      </div>
+        </body>
+      </html>
+    </template>
+  </data>
+</odoo>

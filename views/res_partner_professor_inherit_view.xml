@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <!-- Herda o formulário de professores para adicionar campo de assinatura -->
+    <record id="view_res_partner_professor_form_inherit_certificados" model="ir.ui.view">
+      <field name="name">res.partner.form.inherit.certificados</field>
+      <field name="model">res.partner</field>
+      <field name="inherit_id" ref="geracad_curso.geracad_curso_professores_form_view"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group[@name='outros']" position="before">
+          <group string="Assinatura">
+            <field name="assinatura_professor" widget="image" options='{"size": [200, 80]}'/>
+          </group>
+        </xpath>
+      </field>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- Tree: lista de cursos (edições) -->
+    <record id="view_geracad_certificados_curso_tree" model="ir.ui.view">
+      <field name="name">geracad.certificados.curso.tree</field>
+      <field name="model">geracad.certificados.curso</field>
+      <field name="arch" type="xml">
+        <tree string="Cursos (Certificação)" create="1" delete="1">
+          <field name="name"/>
+          <field name="date_inicio"/>
+          <field name="date_fim"/>
+          <field name="carga_horaria"/>
+          <field name="instrutor_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Tree: linhas de aluno (para uso dentro do form ou standalone); botão Gerar certificado -->
+    <record id="view_geracad_certificados_curso_aluno_tree" model="ir.ui.view">
+      <field name="name">geracad.certificados.curso.aluno.tree</field>
+      <field name="model">geracad.certificados.curso.aluno</field>
+      <field name="arch" type="xml">
+        <tree string="Alunos" create="1" delete="1">
+          <field name="curso_id" optional="hide"/>
+          <field name="nome_aluno"/>
+          <field name="token" optional="hide"/>
+          <button name="action_gerar_certificado" type="object" string="Gerar certificado" class="btn-link" icon="fa-file-pdf-o"/>
+        </tree>
+      </field>
+    </record>
+
+    <!-- Form: curso com One2many de alunos -->
+    <record id="view_geracad_certificados_curso_form" model="ir.ui.view">
+      <field name="name">geracad.certificados.curso.form</field>
+      <field name="model">geracad.certificados.curso</field>
+      <field name="arch" type="xml">
+        <form string="Curso (Certificação)">
+          <sheet>
+            <group>
+              <group>
+                <field name="name"/>
+                <field name="date_inicio"/>
+                <field name="date_fim"/>
+                <field name="carga_horaria"/>
+                <field name="instrutor_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
+                <field name="responsavel_tecnico_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
+              </group>
+              <group string="Assinaturas no certificado">
+                <field name="assinatura_instrutor" widget="image" options="{'size': [200, 80]}"/>
+                <field name="assinatura_responsavel_tecnico" widget="image" options="{'size': [200, 80]}"/>
+              </group>
+            </group>
+            <notebook>
+              <page string="Alunos" name="alunos">
+                <field name="aluno_ids" nolabel="1">
+                  <tree create="1" delete="1" edit="1" editable="bottom">
+                    <field name="curso_id" optional="hide"/>
+                    <field name="nome_aluno"/>
+                    <field name="token" optional="hide" readonly="1"/>
+                    <button name="action_gerar_certificado" type="object" string="Gerar certificado" class="btn-link" icon="fa-file-pdf-o"/>
+                  </tree>
+                </field>
+              </page>
+              <page string="Conteúdo programático" name="conteudo">
+                <field name="conteudo_programatico" nolabel="1" placeholder="Conteúdo programático (impresso no verso do certificado)..."/>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- Action: janela para lista de cursos -->
+    <record id="action_geracad_certificados_curso" model="ir.actions.act_window">
+      <field name="name">Cursos (Certificação)</field>
+      <field name="res_model">geracad.certificados.curso</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Crie uma edição de curso para certificação: nome, datas de início/fim, carga horária, instrutor e conteúdo programático.
+        </p>
+        <p>
+          Na aba Alunos, adicione os participantes; use o botão "Gerar certificado" em cada linha para imprimir o PDF.
+        </p>
+      </field>
+    </record>
+
+    <!-- Menu principal: Certificados (abre a lista de cursos para certificação) -->
+    <menuitem id="menu_geracad_certificados_root"
+              name="Certificados"
+              action="action_geracad_certificados_curso"
+              sequence="50"/>
+
+  </data>
+</odoo>
