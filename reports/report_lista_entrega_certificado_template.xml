@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Relatório: Lista de entrega de certificados.
+  Modelo: geracad.certificados.curso (uma impressão por curso).
+  Exibe tabela com: nome do aluno, data e espaço para assinatura ao receber o certificado.
+-->
+<odoo>
+  <template id="report_lista_entrega_certificado_template">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="curso">
+        <t t-call="web.external_layout">
+          <div class="page">
+          <style>
+            .lista-entrega { font-family: Arial, sans-serif; padding: 20px; }
+            .lista-entrega h1 { font-size: 18px; margin-bottom: 4px; color: #1a1a1a; }
+            .lista-entrega .subtitulo { font-size: 12px; color: #555; margin-bottom: 20px; }
+            .lista-entrega table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            .lista-entrega th { border: 1px solid #333; background: #f0f0f0; padding: 8px 10px; text-align: left; }
+            .lista-entrega td { border: 1px solid #333; padding: 8px 10px; vertical-align: middle; }
+            .lista-entrega .col-num { width: 40px; text-align: center; }
+            .lista-entrega .col-nome { min-width: 200px; }
+            .lista-entrega .col-data { width: 100px; }
+            .lista-entrega .col-assinatura { min-width: 180px; }
+            .lista-entrega .linha-assinatura { border: none; border-bottom: 1px solid #333; width: 100%; height: 1.2em; display: block; margin: 0; }
+          </style>
+          <div class="lista-entrega">
+            <h1>Lista de entrega de certificados</h1>
+            <p class="subtitulo">
+              Curso: <strong t-esc="curso.name"/><t t-if="curso.get_periodo_display()"> — Período: <t t-esc="curso.get_periodo_display()"/></t>
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-num">Nº</th>
+                  <th class="col-nome">Nome do aluno</th>
+                  <th class="col-data">Data</th>
+                  <th class="col-assinatura">Assinatura (recebimento)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <t t-foreach="curso.aluno_ids" t-as="aluno">
+                  <tr>
+                    <td class="col-num" style="text-align: center;"><t t-esc="aluno_index + 1"/></td>
+                    <td class="col-nome"><t t-esc="aluno.nome_aluno"/></td>
+                    <td class="col-data"><span class="linha-assinatura"/></td>
+                    <td class="col-assinatura"><span class="linha-assinatura"/></td>
+                  </tr>
+                </t>
+              </tbody>
+            </table>
+          </div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+</odoo>
