@@ -19,6 +19,7 @@
         'views/geracad_certificados_views.xml',
         'views/res_partner_professor_inherit_view.xml',
         'reports/report_certificado_template.xml',
+        'reports/report_lista_entrega_certificado_template.xml',
         'reports/report_actions.xml',
         'views/certificado_verificar_templates.xml',
     ],

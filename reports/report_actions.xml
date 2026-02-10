@@ -14,5 +14,18 @@
       <field name="binding_model_id" ref="model_geracad_certificados_curso_aluno"/>
       <field name="help">Certificado do curso (frente e verso com QR para verificação)</field>
     </record>
+
+    <!-- Lista de entrega de certificados: nome do aluno, data e assinatura (para assinar ao receber) -->
+    <record id="action_report_lista_entrega_certificado" model="ir.actions.report">
+      <field name="name">Lista de entrega de certificados</field>
+      <field name="model">geracad.certificados.curso</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">geracad_certificados.report_lista_entrega_certificado_template</field>
+      <field name="report_file">geracad_certificados.report_lista_entrega_certificado_template</field>
+      <field name="attachment_use" eval="False"/>
+      <field name="print_report_name">'Lista entrega - %s' % (object.name)</field>
+      <field name="binding_model_id" ref="model_geracad_certificados_curso"/>
+      <field name="help">Lista de alunos com nome, data e espaço para assinatura ao receber o certificado.</field>
+    </record>
   </data>
 </odoo>

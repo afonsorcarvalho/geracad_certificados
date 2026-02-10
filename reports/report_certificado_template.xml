@@ -59,7 +59,7 @@
         
 
               <h1 class="titulo-principal">CERTIFICADO</h1>
-              <p class="frase-intro">Certificamos que, para os devidos fins</p>
+              <p class="frase-intro">Certificamos que, para os devidos fins,</p>
               <p class="nome-aluno"><t t-esc="o.nome_aluno"/></p>
               <p class="paragrafo-treinamento">
                 concluiu o treinamento <strong t-esc="o.curso_id.name"/> com carga horária de <strong><t t-esc="o.curso_id.carga_horaria"/> horas</strong> no período de <strong t-esc="o.curso_id.get_periodo_display()"/>.</p>
@@ -70,26 +70,43 @@
                 </div>
                 <div class="assinatura-centro">
                   <div class="bloco-duas-assinaturas">
+                    <!-- Mesma pessoa: instrutor e responsável técnico = uma única assinatura -->
+                    <t t-set="mesmo_instrutor_resp" t-value="o.curso_id.instrutor_id and o.curso_id.responsavel_tecnico_id and o.curso_id.instrutor_id.id == o.curso_id.responsavel_tecnico_id.id"/>
                     <table style="margin: 0 auto; border: none;"><tr>
-                      <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
-                        <!-- Assinatura já gravada em PNG (fundo removido no formulário); senão usa foto do instrutor -->
-                        <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
-                        <t t-if="img_instrutor">
-                          <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px; margin-bottom: 4px;"/>
-                        </t>
-                        <hr class="linha-assinatura"/>
-                        <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
-                        <p class="cargo-instrutor">Instrutor</p>
-                      </td>
-                      <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
-                        <t t-set="img_resp" t-value="o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.responsavel_tecnico_id and o.curso_id.responsavel_tecnico_id.image_1920)"/>
-                        <t t-if="img_resp">
-                          <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px; margin-bottom: 4px;"/>
-                        </t>
-                        <hr class="linha-assinatura"/>
-                        <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
-                        <p class="cargo-responsavel">Responsável técnico</p>
-                      </td>
+                      <t t-if="mesmo_instrutor_resp">
+                        <!-- Uma assinatura: Instrutor e Responsável Técnico -->
+                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
+                          <t t-set="img_unica" t-value="o.curso_id.assinatura_instrutor or o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
+                          <t t-if="img_unica">
+                            <img t-att-src="image_data_uri(img_unica)" alt="Assinatura" style="max-height: 110px; margin-bottom: 4px;"/>
+                          </t>
+                          <hr class="linha-assinatura"/>
+                          <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
+                          <p class="cargo-instrutor">Instrutor e Responsável Técnico</p>
+                        </td>
+                      </t>
+                      <t t-else="">
+                        <!-- Duas assinaturas: Instrutor -->
+                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
+                          <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
+                          <t t-if="img_instrutor">
+                            <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px; margin-bottom: 4px;"/>
+                          </t>
+                          <hr class="linha-assinatura"/>
+                          <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
+                          <p class="cargo-instrutor">Instrutor</p>
+                        </td>
+                        <!-- Responsável técnico (só se for pessoa diferente) -->
+                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
+                          <t t-set="img_resp" t-value="o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.responsavel_tecnico_id and o.curso_id.responsavel_tecnico_id.image_1920)"/>
+                          <t t-if="img_resp">
+                            <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px; margin-bottom: 4px;"/>
+                          </t>
+                          <hr class="linha-assinatura"/>
+                          <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
+                          <p class="cargo-responsavel">Responsável técnico</p>
+                        </td>
+                      </t>
                     </tr></table>
                   </div>
                   <t t-set="qrb64" t-value="o.get_qrcode_base64()"/>
