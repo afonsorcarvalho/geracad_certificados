@@ -25,6 +25,9 @@
         <tree string="Alunos" create="1" delete="1">
           <field name="curso_id" optional="hide"/>
           <field name="nome_aluno"/>
+          <field name="aluno_categoria"/>
+          <field name="aluno_registro"/>
+          <field name="aluno_renach"/>
           <field name="token" optional="hide"/>
           <button name="action_gerar_certificado" type="object" string="Gerar certificado" class="btn-link" icon="fa-file-pdf-o"/>
         </tree>
@@ -44,12 +47,25 @@
                 <field name="date_inicio"/>
                 <field name="date_fim"/>
                 <field name="carga_horaria"/>
-                <field name="instrutor_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
-                <field name="responsavel_tecnico_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
               </group>
               <group string="Assinaturas no certificado">
                 <field name="assinatura_instrutor" widget="image" options="{'size': [200, 80]}"/>
                 <field name="assinatura_responsavel_tecnico" widget="image" options="{'size': [200, 80]}"/>
+              </group>
+            </group>
+            <group string="Instrutor Técnico">
+              <group>
+                <field name="instrutor_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
+                <field name="instrutor_cargo_funcao" placeholder="Ex.: Instrutor de Trânsito Cat. A/D"/>
+                <field name="instrutor_registro" placeholder="Ex.: 03219659910"/>
+                <field name="instrutor_renach" placeholder="Ex.: MA044511469"/>
+              </group>
+            </group>
+            <group string="Responsável Técnico">
+              <group>
+                <field name="responsavel_tecnico_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
+                <field name="responsavel_tecnico_cargo_funcao" placeholder="Ex.: Eng. Eletricista/ Eng. de Segurança do Trabalho"/>
+                <field name="responsavel_tecnico_crea" placeholder="Ex.: CREA-MA Nº3627D"/>
               </group>
             </group>
             <notebook>
@@ -58,6 +74,9 @@
                   <tree create="1" delete="1" edit="1" editable="bottom">
                     <field name="curso_id" optional="hide"/>
                     <field name="nome_aluno"/>
+                    <field name="aluno_categoria"/>
+                    <field name="aluno_registro"/>
+                    <field name="aluno_renach"/>
                     <field name="token" optional="hide" readonly="1"/>
                     <button name="action_gerar_certificado" type="object" string="Gerar certificado" class="btn-link" icon="fa-file-pdf-o"/>
                   </tree>

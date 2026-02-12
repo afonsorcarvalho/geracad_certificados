@@ -46,6 +46,28 @@ class GeracadCertificadosCurso(models.Model):
         domain=[('e_professor', '=', True)],
         help='Parceiro professor responsável técnico; assinatura exibida ao lado do instrutor no certificado.',
     )
+    # Detalhes do instrutor no certificado (Instrutor Técnico)
+    instrutor_cargo_funcao = fields.Char(
+        string='Cargo/Função (Instrutor)',
+        help='Ex.: Instrutor de Trânsito Cat. A/D',
+    )
+    instrutor_registro = fields.Char(
+        string='Registro Nº (Instrutor)',
+        help='Número de registro do instrutor (ex.: 03219659910).',
+    )
+    instrutor_renach = fields.Char(
+        string='RENACH (Instrutor)',
+        help='Ex.: MA044511469',
+    )
+    # Detalhes do responsável técnico no certificado
+    responsavel_tecnico_cargo_funcao = fields.Char(
+        string='Cargo/Função (Responsável técnico)',
+        help='Ex.: Eng. Eletricista/ Eng. de Segurança do Trabalho',
+    )
+    responsavel_tecnico_crea = fields.Char(
+        string='CREA (Responsável técnico)',
+        help='Ex.: CREA-MA Nº3627D',
+    )
     # Assinaturas (imagens) usadas no PDF do certificado; se preenchidas, substituem a foto do parceiro
     assinatura_instrutor = fields.Binary(
         string='Assinatura do instrutor',

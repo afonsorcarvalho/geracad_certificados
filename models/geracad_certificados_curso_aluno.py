@@ -26,6 +26,19 @@ class GeracadCertificadosCursoAluno(models.Model):
         string='Nome do aluno',
         required=True,
     )
+    # Detalhes do participante (aluno) no certificado
+    aluno_categoria = fields.Char(
+        string='Categoria',
+        help='Ex.: Cat. A/B',
+    )
+    aluno_registro = fields.Char(
+        string='Registro Nº',
+        help='Número de registro do participante (ex.: 05988562138).',
+    )
+    aluno_renach = fields.Char(
+        string='RENACH',
+        help='Ex.: MA050133099',
+    )
     token = fields.Char(
         string='Token',
         readonly=True,

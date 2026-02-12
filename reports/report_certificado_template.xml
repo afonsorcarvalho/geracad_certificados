@@ -37,7 +37,7 @@
               .certificado-frente .nome-aluno { font-size: 32px; font-weight: bold; color: #1e3a5f; margin: 0 0 20px; text-transform: uppercase; letter-spacing: 1px; }
               .certificado-frente .paragrafo-treinamento { font-size: 24px; color: #333; line-height: 1.6; max-width: 92%; margin: 0 auto 32px; text-align: justify; }
               .certificado-frente .paragrafo-treinamento strong { color: #1a1a1a; }
-              .certificado-frente .bloco-assinatura { margin-top: 100px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: nowrap; width: 100%; max-width: 95%; margin-left: auto; margin-right: auto; }
+              .certificado-frente .bloco-assinatura { margin-top: 30px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: nowrap; width: 100%; max-width: 95%; margin-left: auto; margin-right: auto; }
               .certificado-frente .selo {position: absolute; top: 620px; right: 1000px;  width: 120px; text-align: left; }
               .certificado-frente .logo-empresa { position: absolute; top: 640px; right: 100px; width: 240px; text-align: right; }
               .certificado-frente .assinatura-centro { text-align: center; min-width: 200px; flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; }
@@ -46,8 +46,8 @@
               .certificado-frente .bloco-duas-assinaturas td { padding: 0 24px; vertical-align: top; text-align: center; }
               .certificado-frente .assinatura-item { text-align: center; min-width: 160px; }
               .certificado-frente .linha-assinatura { border: none; border-bottom: 1px solid #1a1a1a; width: 100%; max-width: 240px; margin: 0 auto 6px; display: block; }
-              .certificado-frente .nome-instrutor, .certificado-frente .nome-responsavel { font-size: 12px; color: #1a1a1a; margin: 0; text-transform: uppercase; }
-              .certificado-frente .cargo-instrutor, .certificado-frente .cargo-responsavel { font-size: 11px; color: #555; margin: 4px 0 0; }
+              .certificado-frente .nome-instrutor, .certificado-frente .nome-responsavel, .certificado-frente .nome-participante { font-size: 12px; color: #1a1a1a; margin: 0; text-transform: uppercase; }
+              .certificado-frente .cargo-instrutor, .certificado-frente .cargo-responsavel, .certificado-frente .cargo-participante { font-size: 11px; color: #555; margin: 4px 0 0; }
               .certificado-frente .qr-verificacao { margin-top: 10px; font-size: 9px; color: #666; }
             </style>
 
@@ -82,11 +82,26 @@
                           </t>
                           <hr class="linha-assinatura"/>
                           <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
+                          <t t-if="o.curso_id.instrutor_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.instrutor_cargo_funcao"/></t>
+                          <t t-if="o.curso_id.instrutor_registro"><p class="cargo-instrutor">Registro Nº <t t-esc="o.curso_id.instrutor_registro"/></p></t>
+                          <t t-if="o.curso_id.instrutor_renach"><p class="cargo-instrutor">RENACH: <t t-esc="o.curso_id.instrutor_renach"/></p></t>
+                          <t t-if="o.curso_id.responsavel_tecnico_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.responsavel_tecnico_cargo_funcao"/></t>
+                          <t t-if="o.curso_id.responsavel_tecnico_crea"><p class="cargo-instrutor">CREA: <t t-esc="o.curso_id.responsavel_tecnico_crea"/></p></t>
                           <p class="cargo-instrutor">Instrutor e Responsável Técnico</p>
+                        </td>
+                        <!-- Participante: espaço para assinatura do aluno -->
+                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
+                          <div style="min-height: 110px; margin-bottom: 4px;"></div>
+                          <hr class="linha-assinatura"/>
+                          <p class="nome-participante"><t t-esc="o.nome_aluno"/></p>
+                          <t t-if="o.aluno_categoria"><p class="cargo-participante">Cat.: <t t-esc="o.aluno_categoria"/></p></t>
+                          <t t-if="o.aluno_registro"><p class="cargo-participante">Registro Nº: <t t-esc="o.aluno_registro"/></p></t>
+                          <t t-if="o.aluno_renach"><p class="cargo-participante">RENACH: <t t-esc="o.aluno_renach"/></p></t>
+                          <p class="cargo-participante">Participante</p>
                         </td>
                       </t>
                       <t t-else="">
-                        <!-- Duas assinaturas: Instrutor -->
+                        <!-- Instrutor -->
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
                           <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
                           <t t-if="img_instrutor">
@@ -94,7 +109,20 @@
                           </t>
                           <hr class="linha-assinatura"/>
                           <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
+                          <t t-if="o.curso_id.instrutor_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.instrutor_cargo_funcao"/></t>
+                          <t t-if="o.curso_id.instrutor_registro"><p class="cargo-instrutor">Registro Nº <t t-esc="o.curso_id.instrutor_registro"/></p></t>
+                          <t t-if="o.curso_id.instrutor_renach"><p class="cargo-instrutor">RENACH: <t t-esc="o.curso_id.instrutor_renach"/></p></t>
                           <p class="cargo-instrutor">Instrutor</p>
+                        </td>
+                        <!-- Participante: espaço para assinatura do aluno -->
+                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
+                          <div style="min-height: 110px; margin-bottom: 4px;"></div>
+                          <hr class="linha-assinatura"/>
+                            <p class="nome-participante"><t t-esc="o.nome_aluno"/></p>
+                            <t t-if="o.aluno_categoria"><p class="cargo-participante">Cat.: <t t-esc="o.aluno_categoria"/></p></t>
+                            <t t-if="o.aluno_registro"><p class="cargo-participante">Registro Nº: <t t-esc="o.aluno_registro"/></p></t>
+                            <t t-if="o.aluno_renach"><p class="cargo-participante">RENACH: <t t-esc="o.aluno_renach"/></p></t>
+                            <p class="cargo-participante">Participante</p>
                         </td>
                         <!-- Responsável técnico (só se for pessoa diferente) -->
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
@@ -104,6 +132,8 @@
                           </t>
                           <hr class="linha-assinatura"/>
                           <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
+                          <t t-if="o.curso_id.responsavel_tecnico_cargo_funcao"><p class="cargo-responsavel" t-esc="o.curso_id.responsavel_tecnico_cargo_funcao"/></t>
+                          <t t-if="o.curso_id.responsavel_tecnico_crea"><p class="cargo-responsavel">CREA: <t t-esc="o.curso_id.responsavel_tecnico_crea"/></p></t>
                           <p class="cargo-responsavel">Responsável técnico</p>
                         </td>
                       </t>
