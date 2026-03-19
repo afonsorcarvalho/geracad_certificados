@@ -105,7 +105,7 @@
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
                           <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
                           <t t-if="img_instrutor">
-                            <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px; margin-bottom: 4px;"/>
+                            <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px;max-width: 200px; margin-bottom: 4px;"/>
                           </t>
                           <hr class="linha-assinatura"/>
                           <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
@@ -128,7 +128,7 @@
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
                           <t t-set="img_resp" t-value="o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.responsavel_tecnico_id and o.curso_id.responsavel_tecnico_id.image_1920)"/>
                           <t t-if="img_resp">
-                            <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px; margin-bottom: 4px;"/>
+                            <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px;max-width: 200px; margin-bottom: 4px;"/>
                           </t>
                           <hr class="linha-assinatura"/>
                           <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
