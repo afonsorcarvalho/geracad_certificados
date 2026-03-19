@@ -25,7 +25,7 @@
               /* Frente: fundo e ornamentos só na primeira página; verso: só texto, sem figuras. Fonte: Libre Baskerville (serif). */
               .certificado-wrapper { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; background: #fff; }
               .pagina-frente { position: relative; height: 100%; min-height: 100%; page-break-after: always; overflow: hidden; }
-              .pagina-frente .img-fundo { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+              .pagina-frente .img-fundo { position: absolute; display: none; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
               .certificado-frente { position: relative; z-index: 1; padding: 50px 60px 40px; text-align: center; }
               .certificado-frente .canto { position: absolute; width: 100px; height: 100px; }
               .certificado-frente .canto-tl { top: 20px; left: 20px; }
@@ -44,16 +44,16 @@
               .certificado-frente .bloco-duas-assinaturas { margin-bottom: 10px; }
               .certificado-frente .bloco-duas-assinaturas table { margin: 0 auto; border-collapse: collapse; }
               .certificado-frente .bloco-duas-assinaturas td { padding: 0 24px; vertical-align: top; text-align: center; }
-              .certificado-frente .assinatura-item { text-align: center; min-width: 160px; }
-              .certificado-frente .linha-assinatura { border: none; border-bottom: 1px solid #1a1a1a; width: 100%; max-width: 240px; margin: 0 auto 6px; display: block; }
+              .certificado-frente .assinatura-item { text-align: center; width: 300px; }
+              .certificado-frente .linha-assinatura { border: none; border-bottom: 1px solid #1a1a1a; width: 100%; max-width: 280px; margin: 0 auto 6px; display: block; }
               .certificado-frente .nome-instrutor, .certificado-frente .nome-responsavel, .certificado-frente .nome-participante { font-size: 12px; color: #1a1a1a; margin: 0; text-transform: uppercase; }
               .certificado-frente .cargo-instrutor, .certificado-frente .cargo-responsavel, .certificado-frente .cargo-participante { font-size: 11px; color: #555; margin: 4px 0 0; }
-              .certificado-frente .qr-verificacao { margin-top: 10px; font-size: 9px; color: #666; }
+              .certificado-frente .qr-verificacao { margin-top: 40px; font-size: 9px; color: #666; }
             </style>
 
             <!-- Página 1: Frente (fundo e ornamentos só aqui) -->
             <div class="pagina-frente">
-              <img class="img-fundo" t-att-src="o._get_certificado_fundo_data_uri()" alt="" role="presentation"/>
+              <img class="img-fundo" t-att-src="o._get_certificado_fundo_data_uri()" alt="" role="presentation" />
               <div class="certificado-frente">
               
         
@@ -77,9 +77,11 @@
                         <!-- Uma assinatura: Instrutor e Responsável Técnico -->
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
                           <t t-set="img_unica" t-value="o.curso_id.assinatura_instrutor or o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
+                          <div style="margin-left: auto; margin-right: auto; display: block; vertical-align: bottom; horizontal-align: center; justify-content: center; width: 220px;text-align: center; height: 110px; margin-bottom: 4px;">
                           <t t-if="img_unica">
-                            <img t-att-src="image_data_uri(img_unica)" alt="Assinatura" style="max-height: 110px; margin-bottom: 4px;"/>
+                            <img t-att-src="image_data_uri(img_unica)" alt="Assinatura" style="max-height: 110px; margin-bottom: 4px; vertical-align: bottom;max-width: 220px;"/>
                           </t>
+                          </div>
                           <hr class="linha-assinatura"/>
                           <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
                           <t t-if="o.curso_id.instrutor_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.instrutor_cargo_funcao"/></t>
@@ -104,9 +106,11 @@
                         <!-- Instrutor -->
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
                           <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
+                          <div style="margin-left: auto; margin-right: auto; display: block; vertical-align: bottom; horizontal-align: center; justify-content: center; width: 220px;text-align: center; height: 110px; margin-bottom: 4px;">
                           <t t-if="img_instrutor">
-                            <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px;max-width: 200px; margin-bottom: 4px;"/>
+                            <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px; margin-bottom: 4px; vertical-align: bottom;max-width: 220px;"/>
                           </t>
+                          </div>
                           <hr class="linha-assinatura"/>
                           <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
                           <t t-if="o.curso_id.instrutor_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.instrutor_cargo_funcao"/></t>
@@ -127,9 +131,11 @@
                         <!-- Responsável técnico (só se for pessoa diferente) -->
                         <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
                           <t t-set="img_resp" t-value="o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.responsavel_tecnico_id and o.curso_id.responsavel_tecnico_id.image_1920)"/>
+                           <div style="margin-left: auto; margin-right: auto; display: block; vertical-align: bottom; horizontal-align: center; justify-content: center; width: 220px;text-align: center; height: 110px; margin-bottom: 4px;">
                           <t t-if="img_resp">
-                            <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px;max-width: 200px; margin-bottom: 4px;"/>
+                            <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px; margin-bottom: 4px; vertical-align: bottom;max-width: 220px;"/>
                           </t>
+                          </div>
                           <hr class="linha-assinatura"/>
                           <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
                           <t t-if="o.curso_id.responsavel_tecnico_cargo_funcao"><p class="cargo-responsavel" t-esc="o.curso_id.responsavel_tecnico_cargo_funcao"/></t>
