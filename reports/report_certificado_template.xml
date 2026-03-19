@@ -6,7 +6,7 @@
     <field name="default" eval="False"/>
     <field name="format">A4</field>
     <field name="orientation">Landscape</field>
-    <field name="dpi">90</field>
+    <field name="dpi">100</field>
     <field name="margin_top">5</field>
     <field name="margin_bottom">5</field>
     <field name="margin_left">5</field>
@@ -38,8 +38,8 @@
               .certificado-frente .paragrafo-treinamento { font-size: 24px; color: #333; line-height: 1.6; max-width: 92%; margin: 0 auto 32px; text-align: justify; }
               .certificado-frente .paragrafo-treinamento strong { color: #1a1a1a; }
               .certificado-frente .bloco-assinatura { margin-top: 30px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: nowrap; width: 100%; max-width: 95%; margin-left: auto; margin-right: auto; }
-              .certificado-frente .selo {position: absolute; top: 620px; right: 1000px;  width: 120px; text-align: left; }
-              .certificado-frente .logo-empresa { position: absolute; top: 640px; right: 100px; width: 240px; text-align: right; }
+              .certificado-frente .selo {position: absolute; bottom: 5mm; left: 40mm;  width: 120px; text-align: left; }
+              .certificado-frente .logo-empresa { position: absolute; bottom: 5mm; right: 40mm; width: 240px; text-align: right; }
               .certificado-frente .assinatura-centro { text-align: center; min-width: 200px; flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; }
               .certificado-frente .bloco-duas-assinaturas { margin-bottom: 10px; }
               .certificado-frente .bloco-duas-assinaturas table { margin: 0 auto; border-collapse: collapse; }
