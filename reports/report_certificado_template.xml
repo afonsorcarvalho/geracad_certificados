@@ -1,183 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Formato A4 paisagem para o certificado (frente) -->
+  <!-- Formato A4 retrato: certificado em uma única página -->
   <record id="paperformat_certificado" model="report.paperformat">
-    <field name="name">Certificado A4 Paisagem</field>
+    <field name="name">Certificado A4 Retrato</field>
     <field name="default" eval="False"/>
     <field name="format">A4</field>
-    <field name="orientation">Landscape</field>
+    <field name="orientation">Portrait</field>
     <field name="dpi">100</field>
-    <field name="margin_top">5</field>
-    <field name="margin_bottom">5</field>
-    <field name="margin_left">5</field>
-    <field name="margin_right">5</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">8</field>
+    <field name="margin_left">12</field>
+    <field name="margin_right">12</field>
     <field name="header_line" eval="False"/>
-    <field name="header_spacing">20</field>
+    <field name="header_spacing">0</field>
   </record>
 
-  <!-- Template do certificado: frente (layout elegante) + verso (conteúdo programático) -->
+  <!-- Template do certificado: página única, retrato -->
   <template id="report_certificado_template">
     <t t-call="web.html_container">
+      <!-- Fonte e estilos emitidos uma única vez, fora do loop: em impressão em lote
+           repetir por aluno faria N buscas remotas da fonte e inflaria o HTML. -->
+        <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+        <style>
+          /* 297mm (A4) - 10mm topo - 8mm base, com folga para não transbordar */
+          .certificado { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; color: #1a1a1a; background: #fff; font-size: 11px; }
+          .certificado .folha { width: 100%; height: 272mm; border-collapse: collapse; }
+          .certificado .folha td { padding: 0; }
+          .certificado .folha td.corpo { vertical-align: top; }
+          .certificado .folha td.pe { vertical-align: bottom; height: 1px; }
+          .certificado .cabecalho { text-align: center; margin-bottom: 14px; }
+          .certificado .cabecalho img { max-height: 70px; max-width: 260px; }
+          .certificado .cabecalho .nome-empresa { font-size: 15px; font-weight: bold; color: #1e3a5f; margin: 0; }
+          .certificado .titulo-principal { font-size: 30px; font-weight: bold; letter-spacing: 6px; margin: 10px 0 4px; text-align: center; }
+          .certificado .subtitulo { font-size: 10px; letter-spacing: 3px; color: #555; text-align: center; margin: 0 0 18px; text-transform: uppercase; }
+          .certificado .dados { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+          .certificado .dados td { padding: 5px 0; vertical-align: bottom; font-size: 12px; }
+          .certificado .dados td.rotulo { width: 110px; white-space: nowrap; padding-right: 8px; color: #1e3a5f; }
+          .certificado .dados td.valor { border-bottom: 1px solid #1a1a1a; }
+          .certificado .dados td.valor.destaque { font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+          .certificado .secao-titulo { font-size: 11px; font-weight: bold; text-decoration: underline; margin: 0 0 6px; }
+          .certificado .conteudo-programatico { font-size: 9.5px; line-height: 1.35; text-align: justify; }
+          .certificado .conteudo-programatico p { margin: 0 0 3px; }
+          .certificado .conteudo-programatico ol, .certificado .conteudo-programatico ul { margin: 0 0 4px; padding-left: 20px; }
+          .certificado .conteudo-programatico li { margin-bottom: 1px; }
+          .certificado .rodape { width: 100%; border-collapse: collapse; margin-top: 14px; }
+          /* Caixa de registro em proporção de cartão (70x44mm ~ 1.59, razão de cartão de visita) */
+          .certificado .caixa-registro { width: 78mm; height: 49mm; border: 1px solid #1a1a1a; border-collapse: collapse; margin-left: auto; margin-right: 0; }
+          .certificado .caixa-registro td { padding: 8mm; text-align: left; vertical-align: middle; font-size: 10.5px; line-height: 1.7; }
+          .certificado .caixa-registro .titulo-caixa { display: block; font-size: 9px; color: #555; margin-bottom: 5px; }
+          .certificado .caixa-registro .empresa-caixa { font-weight: bold; }
+          .certificado .qr-verificacao { font-size: 8px; color: #666; text-align: center; line-height: 1.3; }
+          .certificado .local-data { text-align: right; font-size: 12px; margin: 14px 0 26px; }
+          .certificado .assinaturas { width: 100%; border-collapse: collapse; }
+          .certificado .assinaturas td { width: 50%; vertical-align: bottom; text-align: center; padding: 0 10px; }
+          .certificado .assinaturas.tres td { width: 33.33%; padding: 0 5px; }
+          .certificado .assinaturas.tres p { font-size: 8px; }
+          .certificado .assinaturas.tres p.nome { font-size: 9px; }
+          .certificado .assinaturas.tres .caixa-assinatura img { max-width: 150px; }
+          .certificado .caixa-assinatura { height: 60px; text-align: center; }
+          .certificado .caixa-assinatura img { max-height: 60px; max-width: 200px; }
+          .certificado .linha-assinatura { border: none; border-top: 1px solid #1a1a1a; margin: 0 0 4px; }
+          .certificado .assinaturas p { margin: 0; font-size: 9px; line-height: 1.3; }
+          .certificado .assinaturas p.nome { font-weight: bold; font-size: 10px; }
+          .certificado .assinaturas p.papel { font-style: italic; color: #1e3a5f; margin-top: 2px; }
+        </style>
       <t t-foreach="docs" t-as="o">
-        <div class="page certificado-wrapper">
-            <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
-            <style>
-              /* Frente: fundo e ornamentos só na primeira página; verso: só texto, sem figuras. Fonte: Libre Baskerville (serif). */
-              .certificado-wrapper { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; background: #fff; }
-              .pagina-frente { position: relative; height: 100%; min-height: 100%; page-break-after: always; overflow: hidden; }
-              .pagina-frente .img-fundo { position: absolute; display: none; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-              .certificado-frente { position: relative; z-index: 1; padding: 50px 60px 40px; text-align: center; }
-              .certificado-frente .canto { position: absolute; width: 100px; height: 100px; }
-              .certificado-frente .canto-tl { top: 20px; left: 20px; }
-              .certificado-frente .canto-tr { top: 20px; right: 20px; transform: scaleX(-1); }
-              .certificado-frente .canto-bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
-              .certificado-frente .canto-br { bottom: 20px; right: 20px; transform: scale(-1); }
-              .certificado-frente .titulo-principal { font-size: 54px; font-weight: bold; color: #1a1a1a; margin: 60px 0 12px; letter-spacing: 5px; }
-              .certificado-frente .frase-intro { font-size: 32px; color: #333; margin: 60px 0 32px; }
-              .certificado-frente .nome-aluno { font-size: 32px; font-weight: bold; color: #1e3a5f; margin: 0 0 20px; text-transform: uppercase; letter-spacing: 1px; }
-              .certificado-frente .paragrafo-treinamento { font-size: 24px; color: #333; line-height: 1.6; max-width: 92%; margin: 0 auto 32px; text-align: justify; }
-              .certificado-frente .paragrafo-treinamento strong { color: #1a1a1a; }
-              .certificado-frente .bloco-assinatura { margin-top: 30px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: nowrap; width: 100%; max-width: 95%; margin-left: auto; margin-right: auto; }
-              .certificado-frente .selo {position: absolute; bottom: 5mm; left: 40mm;  width: 120px; text-align: left; }
-              .certificado-frente .logo-empresa { position: absolute; bottom: 5mm; right: 40mm; width: 240px; text-align: right; }
-              .certificado-frente .assinatura-centro { text-align: center; min-width: 200px; flex: 0 1 auto; display: flex; flex-direction: column; align-items: center; }
-              .certificado-frente .bloco-duas-assinaturas { margin-bottom: 10px; }
-              .certificado-frente .bloco-duas-assinaturas table { margin: 0 auto; border-collapse: collapse; }
-              .certificado-frente .bloco-duas-assinaturas td { padding: 0 24px; vertical-align: top; text-align: center; }
-              .certificado-frente .assinatura-item { text-align: center; width: 300px; }
-              .certificado-frente .linha-assinatura { border: none; border-bottom: 1px solid #1a1a1a; width: 100%; max-width: 280px; margin: 0 auto 6px; display: block; }
-              .certificado-frente .nome-instrutor, .certificado-frente .nome-responsavel, .certificado-frente .nome-participante { font-size: 12px; color: #1a1a1a; margin: 0; text-transform: uppercase; }
-              .certificado-frente .cargo-instrutor, .certificado-frente .cargo-responsavel, .certificado-frente .cargo-participante { font-size: 11px; color: #555; margin: 4px 0 0; }
-              .certificado-frente .qr-verificacao { margin-top: 40px; font-size: 9px; color: #666; }
-            </style>
+        <t t-set="company" t-value="o.env.company"/>
+        <!-- CNPJ: l10n_br_base grava em l10n_br_cnpj_cpf; vat é o campo padrão -->
+        <t t-set="company_cnpj" t-value="company.partner_id.l10n_br_cnpj_cpf if 'l10n_br_cnpj_cpf' in company.partner_id._fields else False"/>
+        <t t-set="company_cnpj" t-value="company_cnpj or company.vat"/>
+        <t t-set="curso" t-value="o.curso_id"/>
+        <t t-set="mesmo_instrutor_resp"
+           t-value="curso.instrutor_id and curso.responsavel_tecnico_id and curso.instrutor_id.id == curso.responsavel_tecnico_id.id"/>
+        <div class="page certificado">
 
-            <!-- Página 1: Frente (fundo e ornamentos só aqui) -->
-            <div class="pagina-frente">
-              <img class="img-fundo" t-att-src="o._get_certificado_fundo_data_uri()" alt="" role="presentation" />
-              <div class="certificado-frente">
-              
-        
+          <table class="folha">
+            <tr><td class="corpo">
 
-              <h1 class="titulo-principal">CERTIFICADO</h1>
-              <p class="frase-intro">Certificamos que, para os devidos fins,</p>
-              <p class="nome-aluno"><t t-esc="o.nome_aluno"/></p>
-              <p class="paragrafo-treinamento">
-                concluiu o treinamento <strong t-esc="o.curso_id.name"/> com carga horária de <strong><t t-esc="o.curso_id.carga_horaria"/> horas</strong> no período de <strong t-esc="o.curso_id.get_periodo_display()"/>.</p>
+          <!-- Cabeçalho: logo da empresa + título -->
+          <div class="cabecalho">
+            <t t-if="company.logo">
+              <img t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+            </t>
+            <t t-else="">
+              <p class="nome-empresa"><t t-esc="company.name"/></p>
+            </t>
+          </div>
+          <h1 class="titulo-principal">CERTIFICADO</h1>
+          <p class="subtitulo">Treinamento / Capacitação</p>
 
-              <div class="bloco-assinatura">
-                <div class="selo">
-                  <img t-att-src="o._get_selo_data_uri()" alt="" style="width: 120px; height: 150px;"/>
-                </div>
-                <div class="assinatura-centro">
-                  <div class="bloco-duas-assinaturas">
-                    <!-- Mesma pessoa: instrutor e responsável técnico = uma única assinatura -->
-                    <t t-set="mesmo_instrutor_resp" t-value="o.curso_id.instrutor_id and o.curso_id.responsavel_tecnico_id and o.curso_id.instrutor_id.id == o.curso_id.responsavel_tecnico_id.id"/>
-                    <table style="margin: 0 auto; border: none;"><tr>
-                      <t t-if="mesmo_instrutor_resp">
-                        <!-- Uma assinatura: Instrutor e Responsável Técnico -->
-                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
-                          <t t-set="img_unica" t-value="o.curso_id.assinatura_instrutor or o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
-                          <div style="margin-left: auto; margin-right: auto; display: block; vertical-align: bottom; horizontal-align: center; justify-content: center; width: 220px;text-align: center; height: 110px; margin-bottom: 4px;">
-                          <t t-if="img_unica">
-                            <img t-att-src="image_data_uri(img_unica)" alt="Assinatura" style="max-height: 110px; margin-bottom: 4px; vertical-align: bottom;max-width: 220px;"/>
-                          </t>
-                          </div>
-                          <hr class="linha-assinatura"/>
-                          <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
-                          <t t-if="o.curso_id.instrutor_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.instrutor_cargo_funcao"/></t>
-                          <t t-if="o.curso_id.instrutor_registro"><p class="cargo-instrutor">Registro Nº <t t-esc="o.curso_id.instrutor_registro"/></p></t>
-                          <t t-if="o.curso_id.instrutor_renach"><p class="cargo-instrutor">RENACH: <t t-esc="o.curso_id.instrutor_renach"/></p></t>
-                          <t t-if="o.curso_id.responsavel_tecnico_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.responsavel_tecnico_cargo_funcao"/></t>
-                          <t t-if="o.curso_id.responsavel_tecnico_crea"><p class="cargo-instrutor">CREA: <t t-esc="o.curso_id.responsavel_tecnico_crea"/></p></t>
-                          <p class="cargo-instrutor">Instrutor e Responsável Técnico</p>
-                        </td>
-                        <!-- Participante: espaço para assinatura do aluno -->
-                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
-                          <div style="min-height: 110px; margin-bottom: 4px;"></div>
-                          <hr class="linha-assinatura"/>
-                          <p class="nome-participante"><t t-esc="o.nome_aluno"/></p>
-                          <t t-if="o.aluno_categoria"><p class="cargo-participante">Cat.: <t t-esc="o.aluno_categoria"/></p></t>
-                          <t t-if="o.aluno_registro"><p class="cargo-participante">Registro Nº: <t t-esc="o.aluno_registro"/></p></t>
-                          <t t-if="o.aluno_renach"><p class="cargo-participante">RENACH: <t t-esc="o.aluno_renach"/></p></t>
-                          <p class="cargo-participante">Participante</p>
-                        </td>
-                      </t>
-                      <t t-else="">
-                        <!-- Instrutor -->
-                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
-                          <t t-set="img_instrutor" t-value="o.curso_id.assinatura_instrutor or (o.curso_id.instrutor_id and o.curso_id.instrutor_id.image_1920)"/>
-                          <div style="margin-left: auto; margin-right: auto; display: block; vertical-align: bottom; horizontal-align: center; justify-content: center; width: 220px;text-align: center; height: 110px; margin-bottom: 4px;">
-                          <t t-if="img_instrutor">
-                            <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor" style="max-height: 110px; margin-bottom: 4px; vertical-align: bottom;max-width: 220px;"/>
-                          </t>
-                          </div>
-                          <hr class="linha-assinatura"/>
-                          <p class="nome-instrutor"><t t-esc="o.curso_id.instrutor_id.name"/></p>
-                          <t t-if="o.curso_id.instrutor_cargo_funcao"><p class="cargo-instrutor" t-esc="o.curso_id.instrutor_cargo_funcao"/></t>
-                          <t t-if="o.curso_id.instrutor_registro"><p class="cargo-instrutor">Registro Nº <t t-esc="o.curso_id.instrutor_registro"/></p></t>
-                          <t t-if="o.curso_id.instrutor_renach"><p class="cargo-instrutor">RENACH: <t t-esc="o.curso_id.instrutor_renach"/></p></t>
-                          <p class="cargo-instrutor">Instrutor</p>
-                        </td>
-                        <!-- Participante: espaço para assinatura do aluno -->
-                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;">
-                          <div style="min-height: 110px; margin-bottom: 4px;"></div>
-                          <hr class="linha-assinatura"/>
-                            <p class="nome-participante"><t t-esc="o.nome_aluno"/></p>
-                            <t t-if="o.aluno_categoria"><p class="cargo-participante">Cat.: <t t-esc="o.aluno_categoria"/></p></t>
-                            <t t-if="o.aluno_registro"><p class="cargo-participante">Registro Nº: <t t-esc="o.aluno_registro"/></p></t>
-                            <t t-if="o.aluno_renach"><p class="cargo-participante">RENACH: <t t-esc="o.aluno_renach"/></p></t>
-                            <p class="cargo-participante">Participante</p>
-                        </td>
-                        <!-- Responsável técnico (só se for pessoa diferente) -->
-                        <td class="assinatura-item" style="padding: 0 24px; vertical-align: top; text-align: center;" t-if="o.curso_id.responsavel_tecnico_id">
-                          <t t-set="img_resp" t-value="o.curso_id.assinatura_responsavel_tecnico or (o.curso_id.responsavel_tecnico_id and o.curso_id.responsavel_tecnico_id.image_1920)"/>
-                           <div style="margin-left: auto; margin-right: auto; display: block; vertical-align: bottom; horizontal-align: center; justify-content: center; width: 220px;text-align: center; height: 110px; margin-bottom: 4px;">
-                          <t t-if="img_resp">
-                            <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico" style="max-height: 110px; margin-bottom: 4px; vertical-align: bottom;max-width: 220px;"/>
-                          </t>
-                          </div>
-                          <hr class="linha-assinatura"/>
-                          <p class="nome-responsavel"><t t-esc="o.curso_id.responsavel_tecnico_id.name"/></p>
-                          <t t-if="o.curso_id.responsavel_tecnico_cargo_funcao"><p class="cargo-responsavel" t-esc="o.curso_id.responsavel_tecnico_cargo_funcao"/></t>
-                          <t t-if="o.curso_id.responsavel_tecnico_crea"><p class="cargo-responsavel">CREA: <t t-esc="o.curso_id.responsavel_tecnico_crea"/></p></t>
-                          <p class="cargo-responsavel">Responsável técnico</p>
-                        </td>
-                      </t>
-                    </tr></table>
+          <!-- Bloco de dados -->
+          <table class="dados">
+            <tr>
+              <td class="rotulo">Certificamos que</td>
+              <td class="valor destaque"><t t-esc="o.nome_aluno"/></td>
+            </tr>
+            <tr>
+              <td class="rotulo">Participou do</td>
+              <td class="valor"><t t-esc="curso.name"/></td>
+            </tr>
+            <tr>
+              <td class="rotulo">Realizado em</td>
+              <td class="valor"><t t-esc="company.city or ''"/><t t-if="company.state_id"> - <t t-esc="company.state_id.code or company.state_id.name"/></t></td>
+            </tr>
+            <tr>
+              <td class="rotulo">No período de</td>
+              <td class="valor"><t t-esc="curso.get_periodo_display()"/></td>
+            </tr>
+            <tr>
+              <td class="rotulo">Carga Horária</td>
+              <td class="valor"><t t-esc="curso.carga_horaria"/> horas</td>
+            </tr>
+            <t t-if="o.aluno_categoria or o.aluno_registro or o.aluno_renach">
+              <tr>
+                <td class="rotulo">Participante</td>
+                <td class="valor">
+                  <t t-if="o.aluno_categoria">Cat.: <t t-esc="o.aluno_categoria"/> </t>
+                  <t t-if="o.aluno_registro">Registro Nº: <t t-esc="o.aluno_registro"/> </t>
+                  <t t-if="o.aluno_renach">RENACH: <t t-esc="o.aluno_renach"/></t>
+                </td>
+              </tr>
+            </t>
+          </table>
+
+          <!-- Conteúdo programático (agora na mesma página) -->
+          <p class="secao-titulo">Conteúdo Programático:</p>
+          <div class="conteudo-programatico">
+            <t t-if="curso.conteudo_programatico">
+              <div t-field="curso.conteudo_programatico"/>
+            </t>
+            <t t-else="">
+              <p><em>Conteúdo não informado.</em></p>
+            </t>
+          </div>
+
+            </td></tr>
+            <tr><td class="pe">
+
+          <!-- Rodapé: QR de verificação + caixa de registro -->
+          <table class="rodape">
+            <tr>
+              <td style="width: 30%; vertical-align: middle;">
+                <t t-set="qrb64" t-value="o.get_qrcode_base64()"/>
+                <t t-if="qrb64">
+                  <div class="qr-verificacao">
+                    <img t-att-src="'data:image/png;base64,' + qrb64" alt="QR" style="width: 84px; height: 84px; display: block; margin: 0 auto 3px;"/>
+                    Verificação de autenticidade<br/>
+                    <span style="word-break: break-all;"><t t-esc="o.token"/></span>
                   </div>
-                  <t t-set="qrb64" t-value="o.get_qrcode_base64()"/>
-                  <t t-if="qrb64">
-                    <div class="qr-verificacao">
-                      <img t-att-src="'data:image/png;base64,' + qrb64" alt="QR" style="width: 70px; height: 70px; display: block; margin: 0 auto 2px;"/>
-                      Verificação de autenticidade<br/>
-                      <span style="font-size: 10px; word-break: break-all;"><t t-esc="o.token"/></span>
-                    </div>
-                  </t>
-                </div>
-                <div class="logo-empresa">
-                  <t t-if="request.env.company.logo">
-                    <img t-att-src="image_data_uri(request.env.company.logo)" alt="Logo" style="max-width: 240px; max-height: 120px;"/>
-                  </t>
-                  <t t-else="">
-                    <p style="font-size: 14px; font-weight: bold; color: #1e3a5f; margin: 0;"><t t-esc="request.env.company.name"/></p>
-                  </t>
-                </div>
-              </div>
-              </div>
-            </div>
+                </t>
+              </td>
+              <td style="width: 6%;"></td>
+              <td style="width: 64%; vertical-align: middle;">
+                <table class="caixa-registro">
+                  <tr><td>
+                    <span class="titulo-caixa">Este certificado acha-se consignado<br/>no livro de Registro da</span>
+                    <span class="empresa-caixa"><t t-esc="company.name"/></span><br/>
+                    <t t-if="company_cnpj">CNPJ <t t-esc="company_cnpj"/><br/></t>
+                    <t t-esc="company.street or ''"/><t t-if="company.street2">, <t t-esc="company.street2"/></t><br/>
+                    <t t-esc="company.city or ''"/><t t-if="company.state_id"> - <t t-esc="company.state_id.code or company.state_id.name"/></t><t t-if="company.zip"> — CEP <t t-esc="company.zip"/></t>
+                    <t t-if="company.phone"><br/>Tel. <t t-esc="company.phone"/></t>
+                  </td></tr>
+                </table>
+              </td>
+            </tr>
+          </table>
 
-            <!-- Página 2: Verso – apenas texto, sem figuras -->
-            <div class="certificado-verso" style="page-break-before: always; padding: 40px; font-family: 'Libre Baskerville', Georgia, serif; background: #fff;">
-              <h3 style="margin-bottom: 16px; font-size: 14px;">Conteúdo programático</h3>
-              <div class="conteudo-programatico" style="font-size: 11px; line-height: 1.5;">
-                <t t-if="o.curso_id.conteudo_programatico">
-                  <div t-field="o.curso_id.conteudo_programatico"/>
-                </t>
-                <t t-else="">
-                  <p><em>Conteúdo não informado.</em></p>
-                </t>
-              </div>
-            </div>
+          <!-- Local e data -->
+          <p class="local-data">
+            <t t-esc="company.city or ''"/>, <t t-esc="curso.get_data_conclusao_display()"/>.
+          </p>
+
+          <!-- Assinaturas: participante à esquerda, instrutor/responsável à direita -->
+          <table t-att-class="'assinaturas tres' if (not mesmo_instrutor_resp and curso.responsavel_tecnico_id) else 'assinaturas'">
+            <tr>
+              <td>
+                <div class="caixa-assinatura"></div>
+                <hr class="linha-assinatura"/>
+                <p class="nome"><t t-esc="o.nome_aluno"/></p>
+                <p class="papel">Participante</p>
+              </td>
+              <t t-if="mesmo_instrutor_resp">
+                <td>
+                  <t t-set="img_unica" t-value="curso.assinatura_instrutor or curso.assinatura_responsavel_tecnico or (curso.instrutor_id and curso.instrutor_id.image_1920)"/>
+                  <div class="caixa-assinatura">
+                    <t t-if="img_unica">
+                      <img t-att-src="image_data_uri(img_unica)" alt="Assinatura"/>
+                    </t>
+                  </div>
+                  <hr class="linha-assinatura"/>
+                  <p class="nome"><t t-esc="curso.instrutor_id.name"/></p>
+                  <t t-if="curso.instrutor_cargo_funcao"><p t-esc="curso.instrutor_cargo_funcao"/></t>
+                  <t t-if="curso.instrutor_registro"><p>Registro Nº <t t-esc="curso.instrutor_registro"/></p></t>
+                  <t t-if="curso.instrutor_renach"><p>RENACH: <t t-esc="curso.instrutor_renach"/></p></t>
+                  <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
+                  <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
+                  <p class="papel">Instrutor / Responsável Técnico</p>
+                </td>
+              </t>
+              <t t-else="">
+                <td>
+                  <t t-set="img_instrutor" t-value="curso.assinatura_instrutor or (curso.instrutor_id and curso.instrutor_id.image_1920)"/>
+                  <div class="caixa-assinatura">
+                    <t t-if="img_instrutor">
+                      <img t-att-src="image_data_uri(img_instrutor)" alt="Assinatura Instrutor"/>
+                    </t>
+                  </div>
+                  <hr class="linha-assinatura"/>
+                  <p class="nome"><t t-esc="curso.instrutor_id.name"/></p>
+                  <t t-if="curso.instrutor_cargo_funcao"><p t-esc="curso.instrutor_cargo_funcao"/></t>
+                  <t t-if="curso.instrutor_registro"><p>Registro Nº <t t-esc="curso.instrutor_registro"/></p></t>
+                  <t t-if="curso.instrutor_renach"><p>RENACH: <t t-esc="curso.instrutor_renach"/></p></t>
+                  <p class="papel">Instrutor</p>
+                </td>
+                <td t-if="curso.responsavel_tecnico_id">
+                  <t t-set="img_resp" t-value="curso.assinatura_responsavel_tecnico or (curso.responsavel_tecnico_id and curso.responsavel_tecnico_id.image_1920)"/>
+                  <div class="caixa-assinatura">
+                    <t t-if="img_resp">
+                      <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico"/>
+                    </t>
+                  </div>
+                  <hr class="linha-assinatura"/>
+                  <p class="nome"><t t-esc="curso.responsavel_tecnico_id.name"/></p>
+                  <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
+                  <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
+                  <p class="papel">Responsável Técnico</p>
+                </td>
+              </t>
+            </tr>
+          </table>
+
+            </td></tr>
+          </table>
         </div>
       </t>
     </t>

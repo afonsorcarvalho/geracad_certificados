@@ -126,6 +126,23 @@ class GeracadCertificadosCursoAluno(models.Model):
         img.save(buffer, format='PNG')
         return base64.b64encode(buffer.getvalue()).decode('ascii')
 
+    def _get_nome_arquivo_lote(self):
+        """Nome do arquivo quando o PDF traz mais de um certificado.
+
+        Todos do mesmo curso: "Certificados - <curso> - <dd-mm-aaaa>".
+        Cursos misturados (seleção manual na lista): cai para a contagem de alunos.
+        """
+        cursos = self.mapped('curso_id')
+        if len(cursos) == 1:
+            data = cursos.date_inicio.strftime('%d-%m-%Y') if cursos.date_inicio else ''
+            nome = 'Certificados - %s' % cursos.name
+            if data:
+                nome = '%s - %s' % (nome, data)
+        else:
+            nome = 'Certificados - %d alunos' % len(self)
+        # barras quebram o nome do arquivo no navegador
+        return nome.replace('/', '-').replace('\\', '-')
+
     def action_gerar_certificado(self):
         """Abre o relatório PDF do certificado para o registro atual."""
         self.ensure_one()

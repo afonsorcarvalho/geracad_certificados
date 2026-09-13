@@ -13,6 +13,8 @@
           <field name="date_fim"/>
           <field name="carga_horaria"/>
           <field name="instrutor_id" context="{'form_view_ref': 'geracad_curso.geracad_curso_professores_form_view', 'default_e_professor': True}"/>
+          <button name="action_gerar_todos_certificados" type="object"
+                  string="Imprimir todos" class="btn-link" icon="fa-print"/>
         </tree>
       </field>
     </record>
@@ -40,6 +42,12 @@
       <field name="model">geracad.certificados.curso</field>
       <field name="arch" type="xml">
         <form string="Curso (Certificação)">
+          <header>
+            <button name="action_gerar_todos_certificados" type="object"
+                    string="Imprimir todos os certificados" class="btn-primary"
+                    icon="fa-print"
+                    help="Gera um único PDF com o certificado de todos os alunos desta edição, em ordem alfabética."/>
+          </header>
           <sheet>
             <group>
               <group>

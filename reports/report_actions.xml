@@ -9,10 +9,10 @@
       <field name="report_name">geracad_certificados.report_certificado_template</field>
       <field name="report_file">geracad_certificados.report_certificado_template</field>
       <field name="attachment_use" eval="False"/>
-      <field name="print_report_name">'Certificado - %s - %s' % (object.nome_aluno, object.curso_id.name)</field>
+      <field name="print_report_name">'Certificado - %s' % (object.nome_aluno or '')</field>
       <field name="paperformat_id" ref="paperformat_certificado"/>
       <field name="binding_model_id" ref="model_geracad_certificados_curso_aluno"/>
-      <field name="help">Certificado do curso (frente e verso com QR para verificação)</field>
+      <field name="help">Certificado do curso em página única (A4 retrato) com QR para verificação</field>
     </record>
 
     <!-- Lista de entrega de certificados: nome do aluno, data e assinatura (para assinar ao receber) -->

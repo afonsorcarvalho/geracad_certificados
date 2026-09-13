@@ -11,6 +11,7 @@ import base64
 import io
 
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 
 class GeracadCertificadosCurso(models.Model):
@@ -84,6 +85,18 @@ class GeracadCertificadosCurso(models.Model):
         string='Alunos',
         help='Linhas de aluno por curso; cada uma gera um certificado com token único.',
     )
+
+    def action_gerar_todos_certificados(self):
+        """Gera um único PDF com o certificado de todos os alunos da edição.
+
+        Os alunos saem em ordem alfabética para facilitar a conferência da pilha
+        impressa. Usa o mesmo relatório do botão individual.
+        """
+        self.ensure_one()
+        alunos = self.aluno_ids.sorted(lambda a: (a.nome_aluno or '').lower())
+        if not alunos:
+            raise UserError('Nenhum aluno cadastrado nesta edição do curso.')
+        return self.env.ref('geracad_certificados.action_report_certificado').report_action(alunos)
 
     def get_periodo_display(self):
         """
