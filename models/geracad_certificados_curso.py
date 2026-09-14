@@ -144,10 +144,16 @@ class GeracadCertificadosCurso(models.Model):
         # barras quebram o nome do arquivo no navegador
         return nome.replace('/', '-').replace('\\', '-')
 
-    # Acima deste tanto de texto (sem tags) o conteúdo programático não cabe
-    # em coluna única na área útil do certificado, que encolheu quando passamos
-    # a reservar o topo para o papel timbrado.
-    LIMITE_TEXTO_DUAS_COLUNAS = 1200
+    # Acima deste tanto de texto o conteúdo programático vai para duas colunas.
+    #
+    # Medido contra os 29 cursos de produção (text_content, a mesma unidade que
+    # o método usa): os que estouram para 2 páginas vão de 1173 a 2138, mas o
+    # maior que ainda cabe tem 1538 — não há corte limpo por caracteres, porque
+    # o que ocupa altura é o número de parágrafos (cada um com sua margem) tanto
+    # quanto o texto. 850 fica abaixo de todos os que estouram, com margem; o
+    # preço é que ~5 cursos que hoje cabem em coluna única também passam a sair
+    # em duas.
+    LIMITE_TEXTO_DUAS_COLUNAS = 850
 
     def get_conteudo_programatico_render(self):
         """HTML do conteúdo programático pronto para o certificado.
@@ -176,6 +182,15 @@ class GeracadCertificadosCurso(models.Model):
         if len(raiz.text_content() or '') <= self.LIMITE_TEXTO_DUAS_COLUNAS:
             return html
 
+        # Texto solto antes do primeiro elemento fica em raiz.text e não entra
+        # em list(raiz); vira um <p> para não sumir do certificado. (As caudas
+        # não precisam disso: tostring já inclui o .tail de cada elemento.)
+        if raiz.text and raiz.text.strip():
+            primeiro = raiz.makeelement('p')
+            primeiro.text = raiz.text
+            raiz.text = None
+            raiz.insert(0, primeiro)
+
         blocos = list(raiz)
         lista = None
         # Lista única: reparte os <li> e recria o <ol>/<ul> nas duas colunas,
@@ -202,6 +217,8 @@ class GeracadCertificadosCurso(models.Model):
             )
             if lista is None:
                 return html_parte
+            # start= assume que a lista de origem numera a partir de 1; nenhum
+            # curso hoje usa start próprio.
             attr = ' start="%d"' % inicio if inicio and lista.tag == 'ol' else ''
             return '<%s%s>%s</%s>' % (lista.tag, attr, html_parte, lista.tag)
 
