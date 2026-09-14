@@ -144,6 +144,73 @@ class GeracadCertificadosCurso(models.Model):
         # barras quebram o nome do arquivo no navegador
         return nome.replace('/', '-').replace('\\', '-')
 
+    # Acima deste tanto de texto (sem tags) o conteúdo programático não cabe
+    # em coluna única na área útil do certificado, que encolheu quando passamos
+    # a reservar o topo para o papel timbrado.
+    LIMITE_TEXTO_DUAS_COLUNAS = 1200
+
+    def get_conteudo_programatico_render(self):
+        """HTML do conteúdo programático pronto para o certificado.
+
+        Conteúdo longo sai em duas colunas. O wkhtmltopdf desta versão ignora
+        column-count do CSS (testado), então a divisão é feita aqui: os blocos
+        de topo do HTML (os <p>, ou os <li> quando o conteúdo é uma lista) são
+        repartidos em duas metades de texto equilibrado e remontados dentro de
+        uma tabela de duas células.
+
+        Devolve o HTML original quando ele é curto, quando já vem em duas
+        colunas (marcador cp-2col, para o caso de o dado já ter sido
+        normalizado) ou quando não há blocos suficientes para repartir.
+        """
+        self.ensure_one()
+        html = self.conteudo_programatico or ''
+        if not html.strip():
+            return ''
+        if 'cp-2col' in html:
+            return html
+        try:
+            from lxml import html as lxml_html
+            raiz = lxml_html.fragment_fromstring(html, create_parent='div')
+        except Exception:
+            return html
+        if len(raiz.text_content() or '') <= self.LIMITE_TEXTO_DUAS_COLUNAS:
+            return html
+
+        blocos = list(raiz)
+        lista = None
+        # Lista única: reparte os <li> e recria o <ol>/<ul> nas duas colunas,
+        # com start= na segunda para a numeração não recomeçar do 1.
+        if len(blocos) == 1 and blocos[0].tag in ('ol', 'ul'):
+            lista = blocos[0]
+            blocos = list(lista)
+        if len(blocos) < 2:
+            return html
+
+        pesos = [len(b.text_content() or '') for b in blocos]
+        metade = sum(pesos) / 2.0
+        acumulado = 0
+        corte = len(blocos) - 1
+        for i, peso in enumerate(pesos):
+            if acumulado + peso / 2.0 >= metade:
+                corte = max(1, i)
+                break
+            acumulado += peso
+
+        def montar(parte, inicio=None):
+            html_parte = ''.join(
+                lxml_html.tostring(b, encoding='unicode') for b in parte
+            )
+            if lista is None:
+                return html_parte
+            attr = ' start="%d"' % inicio if inicio and lista.tag == 'ol' else ''
+            return '<%s%s>%s</%s>' % (lista.tag, attr, html_parte, lista.tag)
+
+        return (
+            '<table class="cp-2col"><tr>'
+            '<td>%s</td><td>%s</td>'
+            '</tr></table>'
+        ) % (montar(blocos[:corte]), montar(blocos[corte:], inicio=corte + 1))
+
     def get_periodo_display(self):
         """
         Retorna o período formatado para exibição (ex.: certificado).
