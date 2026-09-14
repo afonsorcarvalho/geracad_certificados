@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Relatório: Registro de Treinamento (lista de presença).
+  Modelo: geracad.certificados.curso (uma impressão por edição do curso).
+  Papel comum: o logo da empresa é desenhado no PDF (ao contrário do certificado,
+  que é impresso em papel timbrado e por isso não traz logo).
+-->
+<odoo>
+  <!-- A4 retrato com margens normais; a lista pode ocupar quantas páginas precisar. -->
+  <record id="paperformat_registro_treinamento" model="report.paperformat">
+    <field name="name">Registro de Treinamento A4</field>
+    <field name="default" eval="False"/>
+    <field name="format">A4</field>
+    <field name="orientation">Portrait</field>
+    <field name="dpi">100</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">10</field>
+    <field name="margin_left">10</field>
+    <field name="margin_right">10</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">0</field>
+  </record>
+
+  <template id="report_registro_treinamento_template">
+    <t t-call="web.html_container">
+      <style>
+        .registro { font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; font-size: 10px; }
+        /* Faixa do topo: logo à esquerda, título centralizado (como no formulário em papel) */
+        .registro .faixa { width: 100%; border-collapse: collapse; background: #8db3e2; border: 1px solid #1a1a1a; }
+        .registro .faixa td { padding: 8px 10px; vertical-align: middle; }
+        .registro .faixa .logo { width: 25%; }
+        .registro .faixa .logo img { max-height: 52px; max-width: 170px; }
+        .registro .faixa .titulo { text-align: center; font-size: 17px; font-weight: bold; color: #1f3864; }
+        .registro .faixa .vazio { width: 25%; }
+
+        /* Grade de dados do treinamento: mesma moldura da tabela de alunos */
+        .registro .dados { width: 100%; border-collapse: collapse; margin-top: -1px; }
+        .registro .dados td { border: 1px solid #1a1a1a; padding: 6px 8px; vertical-align: top; height: 26px; }
+        .registro .dados .rotulo { font-weight: bold; color: #1f3864; }
+        .registro .dados .valor { font-weight: normal; }
+        .registro .conteudo-celula { height: 90px; }
+        .registro .conteudo-programatico { font-size: 9px; line-height: 1.3; }
+        .registro .conteudo-programatico p { margin: 0 0 2px; }
+        .registro .conteudo-programatico ol, .registro .conteudo-programatico ul { margin: 0; padding-left: 16px; }
+
+        /* Tabela de participantes */
+        .registro .participantes { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        /* table-header-group: o cabeçalho se repete em toda página quando a lista transborda */
+        .registro .participantes thead { display: table-header-group; }
+        .registro .participantes tr { page-break-inside: avoid; }
+        .registro .participantes th { border: 1px solid #1a1a1a; background: #dce6f1; padding: 5px 4px;
+                                      font-size: 9px; color: #1f3864; text-align: center; }
+        .registro .participantes td { border: 1px solid #1a1a1a; padding: 6px 4px; height: 20px; font-size: 10px; }
+        .registro .participantes .col-num { width: 26px; text-align: center; }
+        .registro .participantes .col-nome { width: 34%; }
+        .registro .participantes .col-cat { width: 11%; text-align: center; }
+        .registro .participantes .col-cnh { width: 15%; text-align: center; }
+        .registro .participantes .col-renach { width: 15%; text-align: center; }
+        .registro .participantes .col-data { width: 9%; }
+        /* Três colunas sem cabeçalho, como no formulário em papel: anotação manual */
+        .registro .participantes .col-livre { width: 4%; }
+        .registro .participantes .col-nota { width: 6%; }
+      </style>
+      <t t-foreach="docs" t-as="curso">
+        <t t-set="company" t-value="curso.env.company"/>
+        <div class="page registro">
+
+          <!-- Faixa: logo + título -->
+          <table class="faixa">
+            <tr>
+              <td class="logo">
+                <t t-if="company.logo">
+                  <img t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+                </t>
+                <t t-else="">
+                  <strong t-esc="company.name"/>
+                </t>
+              </td>
+              <td class="titulo">Registro de Treinamento</td>
+              <td class="vazio"></td>
+            </tr>
+          </table>
+
+          <!-- Dados do treinamento -->
+          <table class="dados">
+            <tr>
+              <td colspan="4">
+                <span class="rotulo">Treinamento: </span>
+                <span class="valor" t-esc="curso.name"/>
+              </td>
+              <td colspan="2">
+                <span class="rotulo">Código do Treinamento: </span>
+                <span class="valor" t-esc="curso.codigo_treinamento or ''"/>
+              </td>
+              <td colspan="2">
+                <span class="rotulo">Turma: </span>
+                <span class="valor" t-esc="curso.turma or ''"/>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <span class="rotulo">Período: </span>
+                <span class="valor" t-esc="curso.get_periodo_display()"/>
+              </td>
+              <td colspan="2">
+                <span class="rotulo">Local: </span>
+                <span class="valor" t-esc="curso.local or ''"/>
+              </td>
+              <td colspan="2">
+                <span class="rotulo">Horário: </span>
+                <span class="valor" t-esc="curso.horario or ''"/>
+              </td>
+              <td colspan="2">
+                <span class="rotulo">Carga Horária: </span>
+                <span class="valor"><t t-if="curso.carga_horaria"><t t-esc="curso.carga_horaria"/> horas</t></span>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="6">
+                <span class="rotulo">Fonte/Instrutor: </span>
+                <span class="valor" t-esc="curso.instrutor_id.name or ''"/>
+              </td>
+              <td colspan="2">
+                <span class="rotulo">Matrícula: </span>
+                <span class="valor" t-esc="curso.instrutor_matricula or ''"/>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="8" class="conteudo-celula">
+                <span class="rotulo">Conteúdo:</span>
+                <div class="conteudo-programatico">
+                  <t t-if="curso.conteudo_programatico">
+                    <div t-field="curso.conteudo_programatico"/>
+                  </t>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Participantes: uma linha por aluno cadastrado, em ordem alfabética -->
+          <table class="participantes">
+            <thead>
+              <tr>
+                <th class="col-num">Nº</th>
+                <th class="col-nome">Nome (LEGÍVEL - LETRA DE FORMA)</th>
+                <th class="col-cat">CATEGORIA CNH</th>
+                <th class="col-cnh">Nº DE REGISTRO CNH</th>
+                <th class="col-renach">Nº RENACH</th>
+                <th class="col-data">DATA</th>
+                <th class="col-livre"></th>
+                <th class="col-livre"></th>
+                <th class="col-livre"></th>
+                <th class="col-nota">Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="curso.get_alunos_ordenados()" t-as="aluno">
+                <tr>
+                  <td class="col-num"><t t-esc="aluno_index + 1"/></td>
+                  <td class="col-nome"><t t-esc="aluno.nome_aluno"/></td>
+                  <td class="col-cat"><t t-esc="aluno.aluno_categoria or ''"/></td>
+                  <td class="col-cnh"><t t-esc="aluno.aluno_registro or ''"/></td>
+                  <td class="col-renach"><t t-esc="aluno.aluno_renach or ''"/></td>
+                  <td class="col-data"></td>
+                  <td class="col-livre"></td>
+                  <td class="col-livre"></td>
+                  <td class="col-livre"></td>
+                  <td class="col-nota"></td>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>

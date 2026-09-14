@@ -15,6 +15,20 @@
       <field name="help">Certificado do curso em página única (A4 retrato) com QR para verificação</field>
     </record>
 
+    <!-- Registro de Treinamento (lista de presença): modelo curso, um PDF por edição -->
+    <record id="action_report_registro_treinamento" model="ir.actions.report">
+      <field name="name">Registro de Treinamento</field>
+      <field name="model">geracad.certificados.curso</field>
+      <field name="report_type">qweb-pdf</field>
+      <field name="report_name">geracad_certificados.report_registro_treinamento_template</field>
+      <field name="report_file">geracad_certificados.report_registro_treinamento_template</field>
+      <field name="attachment_use" eval="False"/>
+      <field name="print_report_name">object.get_nome_arquivo_registro_treinamento()</field>
+      <field name="paperformat_id" ref="paperformat_registro_treinamento"/>
+      <field name="binding_model_id" ref="model_geracad_certificados_curso"/>
+      <field name="help">Lista de presença do treinamento: dados da turma e tabela de participantes com CNH, RENACH, data e nota.</field>
+    </record>
+
     <!-- Lista de entrega de certificados: nome do aluno, data e assinatura (para assinar ao receber) -->
     <record id="action_report_lista_entrega_certificado" model="ir.actions.report">
       <field name="name">Lista de entrega de certificados</field>

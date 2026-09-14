@@ -32,6 +32,24 @@ class GeracadCertificadosCurso(models.Model):
         string='Carga horária (horas)',
         help='Carga horária total do curso em horas.',
     )
+    # Dados administrativos da turma: usados no Registro de Treinamento (lista de
+    # presença), não aparecem no certificado.
+    codigo_treinamento = fields.Char(
+        string='Código do treinamento',
+        help='Código interno do treinamento (ex.: DD-001).',
+    )
+    turma = fields.Char(
+        string='Turma',
+        help='Identificação da turma (ex.: T-2026/01).',
+    )
+    local = fields.Char(
+        string='Local',
+        help='Local onde o treinamento foi realizado (ex.: Sala 2 - NetCom).',
+    )
+    horario = fields.Char(
+        string='Horário',
+        help='Horário das aulas em texto livre (ex.: 08:00 às 12:00).',
+    )
     instrutor_id = fields.Many2one(
         'res.partner',
         string='Instrutor',
@@ -59,6 +77,10 @@ class GeracadCertificadosCurso(models.Model):
     instrutor_renach = fields.Char(
         string='RENACH (Instrutor)',
         help='Ex.: MA044511469',
+    )
+    instrutor_matricula = fields.Char(
+        string='Matrícula (Instrutor)',
+        help='Matrícula do instrutor; sai no Registro de Treinamento.',
     )
     # Detalhes do responsável técnico no certificado
     responsavel_tecnico_cargo_funcao = fields.Char(
@@ -97,6 +119,30 @@ class GeracadCertificadosCurso(models.Model):
         if not alunos:
             raise UserError('Nenhum aluno cadastrado nesta edição do curso.')
         return self.env.ref('geracad_certificados.action_report_certificado').report_action(alunos)
+
+    def action_imprimir_registro_treinamento(self):
+        """Abre o PDF do Registro de Treinamento (lista de presença) desta edição."""
+        self.ensure_one()
+        if not self.aluno_ids:
+            raise UserError('Nenhum aluno cadastrado nesta edição do curso.')
+        return self.env.ref(
+            'geracad_certificados.action_report_registro_treinamento'
+        ).report_action(self)
+
+    def get_alunos_ordenados(self):
+        """Alunos em ordem alfabética, como saem nas listas impressas."""
+        self.ensure_one()
+        return self.aluno_ids.sorted(lambda a: (a.nome_aluno or '').lower())
+
+    def get_nome_arquivo_registro_treinamento(self):
+        """Nome do PDF do Registro de Treinamento: "<curso> - <dd-mm-aaaa>"."""
+        self.ensure_one()
+        data = self.date_inicio.strftime('%d-%m-%Y') if self.date_inicio else ''
+        nome = 'Registro de Treinamento - %s' % (self.name or '')
+        if data:
+            nome = '%s - %s' % (nome, data)
+        # barras quebram o nome do arquivo no navegador
+        return nome.replace('/', '-').replace('\\', '-')
 
     def get_periodo_display(self):
         """
