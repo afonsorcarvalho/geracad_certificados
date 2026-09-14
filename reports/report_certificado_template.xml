@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <!-- Formato A4 retrato: certificado em uma única página -->
+  <!-- Formato A4 retrato: certificado em uma única página.
+       margin_top reserva o timbrado já impresso no papel (logo NetCom no topo).
+       50mm = profundidade do timbrado medida com régua a partir da borda física
+       do papel. Se a medida mudar, ajustar este campo E a altura de .folha
+       abaixo (ver a nota de calibração lá). -->
   <record id="paperformat_certificado" model="report.paperformat">
     <field name="name">Certificado A4 Retrato</field>
     <field name="default" eval="False"/>
     <field name="format">A4</field>
     <field name="orientation">Portrait</field>
     <field name="dpi">100</field>
-    <field name="margin_top">10</field>
+    <field name="margin_top">50</field>
     <field name="margin_bottom">8</field>
     <field name="margin_left">12</field>
     <field name="margin_right">12</field>
@@ -22,35 +26,34 @@
            repetir por aluno faria N buscas remotas da fonte e inflaria o HTML. -->
         <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
         <style>
-          /* 297mm (A4) - 10mm topo - 8mm base, com folga para não transbordar */
+          /* Altura da folha: o bloco de assinaturas fica ancorado no pé desta tabela
+             (td.pe é vertical-align: bottom), logo esta altura é o que fixa a distância
+             das linhas de assinatura até a borda inferior do papel.
+             ATENÇÃO: o wkhtmltopdf aplica um zoom ~0.766 sobre as unidades CSS neste
+             paperformat, então o valor NÃO é a altura real em mm. Medido: 3.0167px/mm
+             a 100dpi. Área imprimível = 297 - 50 (topo) - 8 (base) = 239mm = 942px;
+             305mm * 3.0167 = 920px (310mm já transborda; 308mm é o maior valor
+             testado que ainda cabe — 305mm deixa folga para variação de fontes).
+             Se as margens do paperformat mudarem, recalibrar este valor. */
           .certificado { font-family: 'Libre Baskerville', Georgia, 'Times New Roman', serif; color: #1a1a1a; background: #fff; font-size: 11px; }
-          .certificado .folha { width: 100%; height: 272mm; border-collapse: collapse; }
+          .certificado .folha { width: 100%; height: 305mm; border-collapse: collapse; }
           .certificado .folha td { padding: 0; }
           .certificado .folha td.corpo { vertical-align: top; }
           .certificado .folha td.pe { vertical-align: bottom; height: 1px; }
-          .certificado .cabecalho { text-align: center; margin-bottom: 14px; }
-          .certificado .cabecalho img { max-height: 70px; max-width: 260px; }
-          .certificado .cabecalho .nome-empresa { font-size: 15px; font-weight: bold; color: #1e3a5f; margin: 0; }
-          .certificado .titulo-principal { font-size: 30px; font-weight: bold; letter-spacing: 6px; margin: 10px 0 4px; text-align: center; }
-          .certificado .subtitulo { font-size: 10px; letter-spacing: 3px; color: #555; text-align: center; margin: 0 0 18px; text-transform: uppercase; }
+          .certificado .titulo-principal { font-size: 28px; font-weight: bold; letter-spacing: 6px; margin: 0 0 4px; text-align: center; }
+          .certificado .subtitulo { font-size: 10px; letter-spacing: 3px; color: #555; text-align: center; margin: 0 0 16px; text-transform: uppercase; }
           .certificado .dados { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
           .certificado .dados td { padding: 5px 0; vertical-align: bottom; font-size: 12px; }
           .certificado .dados td.rotulo { width: 110px; white-space: nowrap; padding-right: 8px; color: #1e3a5f; }
-          .certificado .dados td.valor { border-bottom: 1px solid #1a1a1a; }
           .certificado .dados td.valor.destaque { font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
           .certificado .secao-titulo { font-size: 11px; font-weight: bold; text-decoration: underline; margin: 0 0 6px; }
           .certificado .conteudo-programatico { font-size: 9.5px; line-height: 1.35; text-align: justify; }
           .certificado .conteudo-programatico p { margin: 0 0 3px; }
           .certificado .conteudo-programatico ol, .certificado .conteudo-programatico ul { margin: 0 0 4px; padding-left: 20px; }
           .certificado .conteudo-programatico li { margin-bottom: 1px; }
-          .certificado .rodape { width: 100%; border-collapse: collapse; margin-top: 14px; }
-          /* Caixa de registro em proporção de cartão (70x44mm ~ 1.59, razão de cartão de visita) */
-          .certificado .caixa-registro { width: 78mm; height: 49mm; border: 1px solid #1a1a1a; border-collapse: collapse; margin-left: auto; margin-right: 0; }
-          .certificado .caixa-registro td { padding: 8mm; text-align: left; vertical-align: middle; font-size: 10.5px; line-height: 1.7; }
-          .certificado .caixa-registro .titulo-caixa { display: block; font-size: 9px; color: #555; margin-bottom: 5px; }
-          .certificado .caixa-registro .empresa-caixa { font-weight: bold; }
-          .certificado .qr-verificacao { font-size: 8px; color: #666; text-align: center; line-height: 1.3; }
-          .certificado .local-data { text-align: right; font-size: 12px; margin: 14px 0 26px; }
+          .certificado .rodape { width: 100%; border-collapse: collapse; margin-top: 12px; }
+          .certificado .qr-verificacao { font-size: 8px; color: #666; text-align: center; line-height: 1.3; width: 110px; }
+          .certificado .local-data { text-align: right; font-size: 12px; margin: 10px 0 22px; }
           .certificado .assinaturas { width: 100%; border-collapse: collapse; }
           .certificado .assinaturas td { width: 50%; vertical-align: bottom; text-align: center; padding: 0 10px; }
           .certificado .assinaturas.tres td { width: 33.33%; padding: 0 5px; }
@@ -60,15 +63,22 @@
           .certificado .caixa-assinatura { height: 60px; text-align: center; }
           .certificado .caixa-assinatura img { max-height: 60px; max-width: 200px; }
           .certificado .linha-assinatura { border: none; border-top: 1px solid #1a1a1a; margin: 0 0 4px; }
+          /* Altura fixa do bloco sob a linha: garante que todas as linhas de
+             assinatura fiquem na mesma altura (e à mesma distância do pé da
+             página) independentemente de quantas qualificações cada signatário
+             tenha. O overflow: hidden é o que sustenta esse alinhamento.
+             Pior caso: instrutor == responsável técnico (2 colunas, fontes
+             maiores), 7 linhas = ~68px reais. 34mm = ~102px reais, ou seja
+             ~3 linhas de sobra para quando cargo_funcao quebrar em 2 linhas.
+             Se algum signatário tiver qualificações muito longas e a última
+             linha sumir, aumentar só este valor. */
+          .certificado .abaixo-linha { height: 34mm; overflow: hidden; }
           .certificado .assinaturas p { margin: 0; font-size: 9px; line-height: 1.3; }
           .certificado .assinaturas p.nome { font-weight: bold; font-size: 10px; }
           .certificado .assinaturas p.papel { font-style: italic; color: #1e3a5f; margin-top: 2px; }
         </style>
       <t t-foreach="docs" t-as="o">
         <t t-set="company" t-value="o.env.company"/>
-        <!-- CNPJ: l10n_br_base grava em l10n_br_cnpj_cpf; vat é o campo padrão -->
-        <t t-set="company_cnpj" t-value="company.partner_id.l10n_br_cnpj_cpf if 'l10n_br_cnpj_cpf' in company.partner_id._fields else False"/>
-        <t t-set="company_cnpj" t-value="company_cnpj or company.vat"/>
         <t t-set="curso" t-value="o.curso_id"/>
         <t t-set="mesmo_instrutor_resp"
            t-value="curso.instrutor_id and curso.responsavel_tecnico_id and curso.instrutor_id.id == curso.responsavel_tecnico_id.id"/>
@@ -77,15 +87,8 @@
           <table class="folha">
             <tr><td class="corpo">
 
-          <!-- Cabeçalho: logo da empresa + título -->
-          <div class="cabecalho">
-            <t t-if="company.logo">
-              <img t-att-src="image_data_uri(company.logo)" alt="Logo"/>
-            </t>
-            <t t-else="">
-              <p class="nome-empresa"><t t-esc="company.name"/></p>
-            </t>
-          </div>
+          <!-- Sem logo: o papel onde este certificado é impresso já é timbrado.
+               O espaço do timbrado vem de margin_top no paperformat. -->
           <h1 class="titulo-principal">CERTIFICADO</h1>
           <p class="subtitulo">Treinamento / Capacitação</p>
 
@@ -137,32 +140,19 @@
             </td></tr>
             <tr><td class="pe">
 
-          <!-- Rodapé: QR de verificação + caixa de registro -->
+          <!-- Rodapé: QR de verificação (a caixa do livro de registro saiu: o
+               papel timbrado já traz esses dados) -->
           <table class="rodape">
             <tr>
-              <td style="width: 30%; vertical-align: middle;">
+              <td class="qr-verificacao">
                 <t t-set="qrb64" t-value="o.get_qrcode_base64()"/>
                 <t t-if="qrb64">
-                  <div class="qr-verificacao">
-                    <img t-att-src="'data:image/png;base64,' + qrb64" alt="QR" style="width: 84px; height: 84px; display: block; margin: 0 auto 3px;"/>
-                    Verificação de autenticidade<br/>
-                    <span style="word-break: break-all;"><t t-esc="o.token"/></span>
-                  </div>
+                  <img t-att-src="'data:image/png;base64,' + qrb64" alt="QR" style="width: 84px; height: 84px; display: block; margin: 0 auto 3px;"/>
+                  Verificação de autenticidade<br/>
+                  <span style="word-break: break-all;"><t t-esc="o.token"/></span>
                 </t>
               </td>
-              <td style="width: 6%;"></td>
-              <td style="width: 64%; vertical-align: middle;">
-                <table class="caixa-registro">
-                  <tr><td>
-                    <span class="titulo-caixa">Este certificado acha-se consignado<br/>no livro de Registro da</span>
-                    <span class="empresa-caixa"><t t-esc="company.name"/></span><br/>
-                    <t t-if="company_cnpj">CNPJ <t t-esc="company_cnpj"/><br/></t>
-                    <t t-esc="company.street or ''"/><t t-if="company.street2">, <t t-esc="company.street2"/></t><br/>
-                    <t t-esc="company.city or ''"/><t t-if="company.state_id"> - <t t-esc="company.state_id.code or company.state_id.name"/></t><t t-if="company.zip"> — CEP <t t-esc="company.zip"/></t>
-                    <t t-if="company.phone"><br/>Tel. <t t-esc="company.phone"/></t>
-                  </td></tr>
-                </table>
-              </td>
+              <td></td>
             </tr>
           </table>
 
@@ -177,8 +167,10 @@
               <td>
                 <div class="caixa-assinatura"></div>
                 <hr class="linha-assinatura"/>
-                <p class="nome"><t t-esc="o.nome_aluno"/></p>
-                <p class="papel">Participante</p>
+                <div class="abaixo-linha">
+                  <p class="nome"><t t-esc="o.nome_aluno"/></p>
+                  <p class="papel">Participante</p>
+                </div>
               </td>
               <t t-if="mesmo_instrutor_resp">
                 <td>
@@ -189,13 +181,15 @@
                     </t>
                   </div>
                   <hr class="linha-assinatura"/>
-                  <p class="nome"><t t-esc="curso.instrutor_id.name"/></p>
-                  <t t-if="curso.instrutor_cargo_funcao"><p t-esc="curso.instrutor_cargo_funcao"/></t>
-                  <t t-if="curso.instrutor_registro"><p>Registro Nº <t t-esc="curso.instrutor_registro"/></p></t>
-                  <t t-if="curso.instrutor_renach"><p>RENACH: <t t-esc="curso.instrutor_renach"/></p></t>
-                  <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
-                  <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
-                  <p class="papel">Instrutor / Responsável Técnico</p>
+                  <div class="abaixo-linha">
+                    <p class="nome"><t t-esc="curso.instrutor_id.name"/></p>
+                    <t t-if="curso.instrutor_cargo_funcao"><p t-esc="curso.instrutor_cargo_funcao"/></t>
+                    <t t-if="curso.instrutor_registro"><p>Registro Nº <t t-esc="curso.instrutor_registro"/></p></t>
+                    <t t-if="curso.instrutor_renach"><p>RENACH: <t t-esc="curso.instrutor_renach"/></p></t>
+                    <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
+                    <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
+                    <p class="papel">Instrutor / Responsável Técnico</p>
+                  </div>
                 </td>
               </t>
               <t t-else="">
@@ -207,11 +201,13 @@
                     </t>
                   </div>
                   <hr class="linha-assinatura"/>
-                  <p class="nome"><t t-esc="curso.instrutor_id.name"/></p>
-                  <t t-if="curso.instrutor_cargo_funcao"><p t-esc="curso.instrutor_cargo_funcao"/></t>
-                  <t t-if="curso.instrutor_registro"><p>Registro Nº <t t-esc="curso.instrutor_registro"/></p></t>
-                  <t t-if="curso.instrutor_renach"><p>RENACH: <t t-esc="curso.instrutor_renach"/></p></t>
-                  <p class="papel">Instrutor</p>
+                  <div class="abaixo-linha">
+                    <p class="nome"><t t-esc="curso.instrutor_id.name"/></p>
+                    <t t-if="curso.instrutor_cargo_funcao"><p t-esc="curso.instrutor_cargo_funcao"/></t>
+                    <t t-if="curso.instrutor_registro"><p>Registro Nº <t t-esc="curso.instrutor_registro"/></p></t>
+                    <t t-if="curso.instrutor_renach"><p>RENACH: <t t-esc="curso.instrutor_renach"/></p></t>
+                    <p class="papel">Instrutor</p>
+                  </div>
                 </td>
                 <td t-if="curso.responsavel_tecnico_id">
                   <t t-set="img_resp" t-value="curso.assinatura_responsavel_tecnico or (curso.responsavel_tecnico_id and curso.responsavel_tecnico_id.image_1920)"/>
@@ -221,10 +217,12 @@
                     </t>
                   </div>
                   <hr class="linha-assinatura"/>
-                  <p class="nome"><t t-esc="curso.responsavel_tecnico_id.name"/></p>
-                  <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
-                  <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
-                  <p class="papel">Responsável Técnico</p>
+                  <div class="abaixo-linha">
+                    <p class="nome"><t t-esc="curso.responsavel_tecnico_id.name"/></p>
+                    <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
+                    <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
+                    <p class="papel">Responsável Técnico</p>
+                  </div>
                 </td>
               </t>
             </tr>
