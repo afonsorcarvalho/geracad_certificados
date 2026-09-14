@@ -5,15 +5,45 @@
   Exibe tabela com: nome do aluno, data e espaço para assinatura ao receber o certificado.
 -->
 <odoo>
+  <!-- Paperformat próprio: sem ele o relatório herda o A4 padrão da empresa
+       (margin_top 45 + header_spacing 35), que joga o título para 55mm e abre
+       um vazio enorme sob o logo.
+
+       Como o wkhtmltopdf posiciona as duas coisas neste layout (medido a 100dpi):
+         topo do logo   = margin_top - header_spacing
+         topo do título = margin_top + 10.4mm  (padding do external_layout)
+         logo tem 12.2mm de altura, então o respiro entre logo e título
+         é header_spacing - 1.8mm, qualquer que seja margin_top.
+       Só que o padding de 10.4mm vale no início do fluxo, não no topo das
+       páginas seguintes: lá o conteúdo começa em margin_top cru. Para o
+       cabeçalho da tabela (que o thead repete) não cair por cima do logo,
+       margin_top tem de ficar abaixo da base do logo, ou seja
+       header_spacing > 12.2mm.
+       Daí 26/14: logo em 12..24mm, conteúdo a partir de 26mm em toda página,
+       título em 36.4mm. margin_bottom reserva o rodapé com endereço/CNPJ. -->
+  <record id="paperformat_lista_entrega" model="report.paperformat">
+    <field name="name">Lista de entrega A4</field>
+    <field name="default" eval="False"/>
+    <field name="format">A4</field>
+    <field name="orientation">Portrait</field>
+    <field name="dpi">100</field>
+    <field name="margin_top">26</field>
+    <field name="margin_bottom">18</field>
+    <field name="margin_left">10</field>
+    <field name="margin_right">10</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">14</field>
+  </record>
+
   <template id="report_lista_entrega_certificado_template">
     <t t-call="web.html_container">
       <t t-foreach="docs" t-as="curso">
         <t t-call="web.external_layout">
           <div class="page">
           <style>
-            .lista-entrega { font-family: Arial, sans-serif; padding: 20px; }
+            .lista-entrega { font-family: Arial, sans-serif; }
             .lista-entrega h1 { font-size: 18px; margin-bottom: 4px; color: #1a1a1a; }
-            .lista-entrega .subtitulo { font-size: 12px; color: #555; margin-bottom: 20px; }
+            .lista-entrega .subtitulo { font-size: 12px; color: #555; margin-bottom: 14px; }
             .lista-entrega table { width: 100%; border-collapse: collapse; font-size: 11px; }
             .lista-entrega th { border: 1px solid #333; background: #f0f0f0; padding: 8px 10px; text-align: left; }
             .lista-entrega td { border: 1px solid #333; padding: 8px 10px; vertical-align: middle; }

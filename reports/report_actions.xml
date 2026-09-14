@@ -38,6 +38,7 @@
       <field name="report_file">geracad_certificados.report_lista_entrega_certificado_template</field>
       <field name="attachment_use" eval="False"/>
       <field name="print_report_name">'Lista entrega - %s' % (object.name)</field>
+      <field name="paperformat_id" ref="paperformat_lista_entrega"/>
       <field name="binding_model_id" ref="model_geracad_certificados_curso"/>
       <field name="help">Lista de alunos com nome, data e espaço para assinatura ao receber o certificado.</field>
     </record>
