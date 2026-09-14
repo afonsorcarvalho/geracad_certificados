@@ -191,6 +191,21 @@ class GeracadCertificadosCurso(models.Model):
             raiz.text = None
             raiz.insert(0, primeiro)
 
+        # Desce por wrappers. Vários cursos guardam tudo dentro de um <div>
+        # único; repartir o nível de cima daria uma coluna com todo o texto e
+        # outra vazia, o que deixa o certificado MAIOR, não menor.
+        for _ in range(4):
+            filhos = list(raiz)
+            if not filhos:
+                break
+            pesos = [len(b.text_content() or '') for b in filhos]
+            total = sum(pesos) or 1
+            maior = pesos.index(max(pesos))
+            if pesos[maior] / float(total) > 0.85 and len(list(filhos[maior])) > 1:
+                raiz = filhos[maior]
+                continue
+            break
+
         blocos = list(raiz)
         lista = None
         # Lista única: reparte os <li> e recria o <ol>/<ul> nas duas colunas,
@@ -201,11 +216,11 @@ class GeracadCertificadosCurso(models.Model):
         if len(blocos) < 2:
             return html
 
-        pesos = [len(b.text_content() or '') for b in blocos]
-        metade = sum(pesos) / 2.0
+        pesos_blocos = [len(b.text_content() or '') for b in blocos]
+        metade = sum(pesos_blocos) / 2.0
         acumulado = 0
         corte = len(blocos) - 1
-        for i, peso in enumerate(pesos):
+        for i, peso in enumerate(pesos_blocos):
             if acumulado + peso / 2.0 >= metade:
                 corte = max(1, i)
                 break
@@ -221,6 +236,12 @@ class GeracadCertificadosCurso(models.Model):
             # curso hoje usa start próprio.
             attr = ' start="%d"' % inicio if inicio and lista.tag == 'ol' else ''
             return '<%s%s>%s</%s>' % (lista.tag, attr, html_parte, lista.tag)
+
+        # Divisão muito torta não compensa: a coluna cheia fica estreita, quebra
+        # em mais linhas e o resultado ocupa mais altura do que a coluna única.
+        esquerda = sum(pesos_blocos[:corte])
+        if max(esquerda, sum(pesos_blocos) - esquerda) > 0.70 * (sum(pesos_blocos) or 1):
+            return html
 
         return (
             '<table class="cp-2col"><tr>'
