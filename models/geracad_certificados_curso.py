@@ -233,7 +233,13 @@ class GeracadCertificadosCurso(models.Model):
             pesos = [len(b.text_content() or '') for b in filhos]
             total = sum(pesos) or 1
             maior = pesos.index(max(pesos))
-            if pesos[maior] / float(total) > 0.85 and len(list(filhos[maior])) > 1:
+            # Não descer para dentro de uma <ol>/<ul>: ela seria "consumida"
+            # aqui e os <li> virariam os próprios blocos a repartir, saindo
+            # soltos no HTML final (sem <ol>/<ul> em volta) e perdendo a
+            # numeração. O bloco de lista única logo abaixo é quem sabe
+            # remontar o wrapper certo, com start= na segunda coluna.
+            if (pesos[maior] / float(total) > 0.85 and len(list(filhos[maior])) > 1
+                    and filhos[maior].tag not in ('ol', 'ul')):
                 raiz = filhos[maior]
                 continue
             break
