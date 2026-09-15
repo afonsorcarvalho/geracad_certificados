@@ -246,9 +246,9 @@ class GeracadCertificadosCurso(models.Model):
             break
 
         blocos = list(raiz)
-        # Lista única: NÃO reparte. Medido nos cursos de produção: curso 10
-        # (22 itens, média 83 caract.) foi de 176.5pt a 307.5pt (+74%) e curso
-        # 12 (24 itens, média 73 caract.) de 192.6pt a 296.0pt (+54%) ao virar
+        # Lista única: NÃO reparte. Medido em PDF renderizado: uma ementa de
+        # 22 itens (média 83 caract.) foi de 176.5pt a 307.5pt (+74%) e outra
+        # de 24 itens (média 73 caract.) de 192.6pt a 296.0pt (+54%) ao virar
         # duas colunas — o oposto do que a divisão busca. A causa é estrutural:
         # cada <li> carrega recuo e marcador, um custo horizontal fixo que não
         # encolhe quando a coluna é partida ao meio, então cada item ganha
