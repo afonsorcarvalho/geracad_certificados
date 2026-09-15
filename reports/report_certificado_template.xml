@@ -65,7 +65,15 @@
           .certificado .qr-verificacao { font-size: 8px; color: #666; text-align: center; line-height: 1.3; width: 110px; }
           .certificado .local-data { text-align: right; font-size: 12px; margin: 10px 0 22px; }
           .certificado .assinaturas { width: 100%; border-collapse: collapse; }
-          .certificado .assinaturas td { width: 50%; vertical-align: bottom; text-align: center; padding: 0 10px; }
+          /* vertical-align: top, não bottom. Com bottom o wkhtmltopdf alinha ao pé
+             só as células cujo conteúdo enche a célula: a assinatura digitalizada
+             estoura a caixa de 60px (o max-height é ignorado quando o max-width
+             também se aplica) e infla a linha da tabela de 193 para 228 unidades;
+             a coluna do participante, que não tem imagem, sobra e ia parar no
+             topo — saía com a régua ~8mm abaixo das outras duas. Medido contra o
+             certificado de produção do NR-10. Com top as três ficam na mesma
+             altura. */
+          .certificado .assinaturas td { width: 50%; vertical-align: top; text-align: center; padding: 0 10px; }
           .certificado .assinaturas.tres td { width: 33.33%; padding: 0 5px; }
           .certificado .assinaturas.tres p { font-size: 8px; }
           .certificado .assinaturas.tres p.nome { font-size: 9px; }
