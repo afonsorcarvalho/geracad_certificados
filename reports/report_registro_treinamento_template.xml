@@ -60,6 +60,9 @@
         .registro .participantes .col-nome-geral { width: 28%; }
         .registro .participantes .col-assinatura { width: 15%; }
         .registro .participantes .col-gerencia { width: 18%; }
+        /* 4.2% é dica, não medida: o wkhtmltopdf alarga estas colunas além disso para
+           caber "01/jan" em uma linha só — daí as larguras somarem 102%. Com
+           table-layout: fixed o cabeçalho dos dias quebra em duas linhas. */
         .registro .participantes .col-dia { width: 4.2%; }
         .registro .participantes .col-nota { width: 6%; }
       </style>
