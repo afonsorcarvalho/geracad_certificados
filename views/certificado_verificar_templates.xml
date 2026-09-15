@@ -37,6 +37,18 @@
             <div class="row g-2 mb-3">
               <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Aluno</div>
               <div class="col-12 col-sm-8 cert-value-uppercase cert-data-value" t-esc="nome_aluno"/>
+              <t t-if="linha.aluno_categoria">
+                <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Categoria (CNH)</div>
+                <div class="col-12 col-sm-8 cert-data-value" t-esc="linha.aluno_categoria"/>
+              </t>
+              <t t-if="linha.aluno_registro">
+                <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Registro Nº</div>
+                <div class="col-12 col-sm-8 cert-data-value" t-esc="linha.aluno_registro"/>
+              </t>
+              <t t-if="linha.aluno_renach">
+                <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">RENACH</div>
+                <div class="col-12 col-sm-8 cert-data-value" t-esc="linha.aluno_renach"/>
+              </t>
               <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Curso</div>
               <div class="col-12 col-sm-8 cert-data-value" t-esc="curso.name"/>
               <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Período</div>
@@ -49,13 +61,47 @@
                 <t t-if="curso.carga_horaria" t-esc="'%s horas' % curso.carga_horaria"/>
                 <t t-else="">—</t>
               </div>
-              <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Instrutor</div>
-              <div class="col-12 col-sm-8 cert-value-uppercase cert-data-value" t-esc="curso.instrutor_id.name if curso.instrutor_id else '—'"/>
-              <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Responsável técnico</div>
-              <div class="col-12 col-sm-8 cert-value-uppercase cert-data-value" t-esc="curso.responsavel_tecnico_id.name if curso.responsavel_tecnico_id else '—'"/>
               <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Token</div>
               <div class="col-12 col-sm-8 cert-value-monospace cert-data-value" t-esc="linha.token"/>
             </div>
+            <!-- Instrutor e responsável técnico ganharam campos de credencial (cargo, registro, RENACH/CREA);
+                 viraram seções próprias em vez de duas linhas soltas no bloco de dados do curso. -->
+            <t t-if="curso.instrutor_id">
+              <hr/>
+              <h6 class="fw-bold mb-2 cert-section-title">Instrutor</h6>
+              <div class="row g-2 mb-3">
+                <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Nome</div>
+                <div class="col-12 col-sm-8 cert-value-uppercase cert-data-value" t-esc="curso.instrutor_id.name"/>
+                <t t-if="curso.instrutor_cargo_funcao">
+                  <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Cargo/Função</div>
+                  <div class="col-12 col-sm-8 cert-data-value" t-esc="curso.instrutor_cargo_funcao"/>
+                </t>
+                <t t-if="curso.instrutor_registro">
+                  <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Registro Nº</div>
+                  <div class="col-12 col-sm-8 cert-data-value" t-esc="curso.instrutor_registro"/>
+                </t>
+                <t t-if="curso.instrutor_renach">
+                  <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">RENACH</div>
+                  <div class="col-12 col-sm-8 cert-data-value" t-esc="curso.instrutor_renach"/>
+                </t>
+              </div>
+            </t>
+            <t t-if="curso.responsavel_tecnico_id">
+              <hr/>
+              <h6 class="fw-bold mb-2 cert-section-title">Responsável técnico</h6>
+              <div class="row g-2 mb-3">
+                <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Nome</div>
+                <div class="col-12 col-sm-8 cert-value-uppercase cert-data-value" t-esc="curso.responsavel_tecnico_id.name"/>
+                <t t-if="curso.responsavel_tecnico_cargo_funcao">
+                  <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">Cargo/Função</div>
+                  <div class="col-12 col-sm-8 cert-data-value" t-esc="curso.responsavel_tecnico_cargo_funcao"/>
+                </t>
+                <t t-if="curso.responsavel_tecnico_crea">
+                  <div class="col-12 col-sm-4 text-muted fw-medium cert-data-label">CREA</div>
+                  <div class="col-12 col-sm-8 cert-data-value" t-esc="curso.responsavel_tecnico_crea"/>
+                </t>
+              </div>
+            </t>
             <hr/>
             <h6 class="fw-bold mb-2 cert-section-title">Dados da empresa</h6>
             <t t-if="company_logo_data_uri">
