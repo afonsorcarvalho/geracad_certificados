@@ -88,7 +88,10 @@
              linha sumir, aumentar só este valor. */
           .certificado .abaixo-linha { height: 34mm; overflow: hidden; }
           .certificado .assinaturas p { margin: 0; font-size: 9px; line-height: 1.3; }
-          .certificado .assinaturas p.nome { font-weight: bold; font-size: 10px; }
+          /* Maiúsculas: alguns signatários estão cadastrados de forma inconsistente
+             (tudo maiúsculo, só o primeiro nome, etc.); mesmo tratamento já dado
+             ao nome do aluno em .dados td.valor.destaque, agora nas assinaturas. */
+          .certificado .assinaturas p.nome { font-weight: bold; font-size: 10px; text-transform: uppercase; }
           .certificado .assinaturas p.papel { font-style: italic; color: #1e3a5f; margin-top: 2px; }
         </style>
       <t t-foreach="docs" t-as="o">
@@ -128,16 +131,6 @@
               <td class="rotulo">Carga Horária</td>
               <td class="valor"><t t-esc="curso.carga_horaria"/> horas</td>
             </tr>
-            <t t-if="o.aluno_categoria or o.aluno_registro or o.aluno_renach">
-              <tr>
-                <td class="rotulo">Participante</td>
-                <td class="valor">
-                  <t t-if="o.aluno_categoria">Cat.: <t t-esc="o.aluno_categoria"/> </t>
-                  <t t-if="o.aluno_registro">Registro Nº: <t t-esc="o.aluno_registro"/> </t>
-                  <t t-if="o.aluno_renach">RENACH: <t t-esc="o.aluno_renach"/></t>
-                </td>
-              </tr>
-            </t>
           </table>
 
           <!-- Conteúdo programático (agora na mesma página) -->
@@ -175,17 +168,9 @@
             <t t-esc="company.city or ''"/>, <t t-esc="curso.get_data_conclusao_display()"/>.
           </p>
 
-          <!-- Assinaturas: participante à esquerda, instrutor/responsável à direita -->
+          <!-- Assinaturas: instrutor/responsável à esquerda, participante ao centro -->
           <table t-att-class="'assinaturas tres' if (not mesmo_instrutor_resp and curso.responsavel_tecnico_id) else 'assinaturas'">
             <tr>
-              <td>
-                <div class="caixa-assinatura"></div>
-                <hr class="linha-assinatura"/>
-                <div class="abaixo-linha">
-                  <p class="nome"><t t-esc="o.nome_aluno"/></p>
-                  <p class="papel">Participante</p>
-                </div>
-              </td>
               <t t-if="mesmo_instrutor_resp">
                 <td>
                   <t t-set="img_unica" t-value="curso.assinatura_instrutor or curso.assinatura_responsavel_tecnico or (curso.instrutor_id and curso.instrutor_id.image_1920)"/>
@@ -223,22 +208,35 @@
                     <p class="papel">Instrutor</p>
                   </div>
                 </td>
-                <td t-if="curso.responsavel_tecnico_id">
-                  <t t-set="img_resp" t-value="curso.assinatura_responsavel_tecnico or (curso.responsavel_tecnico_id and curso.responsavel_tecnico_id.image_1920)"/>
-                  <div class="caixa-assinatura">
-                    <t t-if="img_resp">
-                      <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico"/>
-                    </t>
-                  </div>
-                  <hr class="linha-assinatura"/>
-                  <div class="abaixo-linha">
-                    <p class="nome"><t t-esc="curso.responsavel_tecnico_id.name"/></p>
-                    <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
-                    <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
-                    <p class="papel">Responsável Técnico</p>
-                  </div>
-                </td>
               </t>
+              <td>
+                <div class="caixa-assinatura"></div>
+                <hr class="linha-assinatura"/>
+                <div class="abaixo-linha">
+                  <p class="nome"><t t-esc="o.nome_aluno"/></p>
+                  <t t-if="curso.e_direcao_defensiva">
+                    <t t-if="o.aluno_categoria"><p>Cat.: <t t-esc="o.aluno_categoria"/></p></t>
+                    <t t-if="o.aluno_registro"><p>Registro Nº <t t-esc="o.aluno_registro"/></p></t>
+                    <t t-if="o.aluno_renach"><p>RENACH: <t t-esc="o.aluno_renach"/></p></t>
+                  </t>
+                  <p class="papel">Participante</p>
+                </div>
+              </td>
+              <td t-if="not mesmo_instrutor_resp and curso.responsavel_tecnico_id">
+                <t t-set="img_resp" t-value="curso.assinatura_responsavel_tecnico or (curso.responsavel_tecnico_id and curso.responsavel_tecnico_id.image_1920)"/>
+                <div class="caixa-assinatura">
+                  <t t-if="img_resp">
+                    <img t-att-src="image_data_uri(img_resp)" alt="Assinatura Responsável Técnico"/>
+                  </t>
+                </div>
+                <hr class="linha-assinatura"/>
+                <div class="abaixo-linha">
+                  <p class="nome"><t t-esc="curso.responsavel_tecnico_id.name"/></p>
+                  <t t-if="curso.responsavel_tecnico_cargo_funcao"><p t-esc="curso.responsavel_tecnico_cargo_funcao"/></t>
+                  <t t-if="curso.responsavel_tecnico_crea"><p>CREA: <t t-esc="curso.responsavel_tecnico_crea"/></p></t>
+                  <p class="papel">Responsável Técnico</p>
+                </div>
+              </td>
             </tr>
           </table>
 
