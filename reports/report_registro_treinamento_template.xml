@@ -56,9 +56,9 @@
         .registro .participantes .col-cat { width: 11%; text-align: center; }
         .registro .participantes .col-cnh { width: 15%; text-align: center; }
         .registro .participantes .col-renach { width: 15%; text-align: center; }
-        .registro .participantes .col-data { width: 9%; }
+        .registro .participantes .col-data { width: 5.25%; }
         /* Três colunas sem cabeçalho, como no formulário em papel: anotação manual */
-        .registro .participantes .col-livre { width: 4%; }
+        .registro .participantes .col-livre { width: 5.25%; }
         .registro .participantes .col-nota { width: 6%; }
       </style>
       <t t-foreach="docs" t-as="curso">
@@ -146,7 +146,7 @@
                 <th class="col-cat">CATEGORIA CNH</th>
                 <th class="col-cnh">Nº DE REGISTRO CNH</th>
                 <th class="col-renach">Nº RENACH</th>
-                <th class="col-data">DATA</th>
+                <th class="col-data"></th>
                 <th class="col-livre"></th>
                 <th class="col-livre"></th>
                 <th class="col-livre"></th>
