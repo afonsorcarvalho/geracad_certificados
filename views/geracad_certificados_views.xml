@@ -60,6 +60,7 @@
                 <field name="name"/>
                 <field name="codigo_treinamento" placeholder="Ex.: DD-001"/>
                 <field name="turma" placeholder="Ex.: T-2026/01"/>
+                <field name="e_direcao_defensiva"/>
                 <field name="date_inicio"/>
                 <field name="date_fim"/>
                 <field name="carga_horaria"/>
@@ -69,6 +70,15 @@
               <group string="Assinaturas no certificado">
                 <field name="assinatura_instrutor" widget="image" options="{'size': [200, 80]}"/>
                 <field name="assinatura_responsavel_tecnico" widget="image" options="{'size': [200, 80]}"/>
+              </group>
+            </group>
+            <group string="Dias do treinamento">
+              <group>
+                <field name="data_dia_1"/>
+                <field name="data_dia_2"/>
+                <field name="data_dia_3"/>
+                <field name="data_dia_4"/>
+                <field name="data_dia_5"/>
               </group>
             </group>
             <group string="Instrutor Técnico">
