@@ -57,10 +57,6 @@
           .certificado .conteudo-programatico .cp-2col { width: 100%; border-collapse: collapse; }
           .certificado .conteudo-programatico .cp-2col td { width: 50%; vertical-align: top; padding: 0 10px 0 0; }
           .certificado .conteudo-programatico .cp-2col td + td { padding: 0 0 0 10px; }
-          /* recuo maior que o da coluna única: o marcador de dois dígitos
-             estourava para fora da célula e ficava cortado */
-          .certificado .conteudo-programatico .cp-2col ol,
-          .certificado .conteudo-programatico .cp-2col ul { padding-left: 26px; }
           .certificado .rodape { width: 100%; border-collapse: collapse; margin-top: 12px; }
           .certificado .qr-verificacao { font-size: 8px; color: #666; text-align: center; line-height: 1.3; width: 110px; }
           .certificado .local-data { text-align: right; font-size: 12px; margin: 10px 0 22px; }

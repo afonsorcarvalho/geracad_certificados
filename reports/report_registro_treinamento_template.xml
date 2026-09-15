@@ -45,12 +45,13 @@
         /* Duas colunas para conteúdo longo (mesma lógica do certificado: é tabela e
            não column-count porque o wkhtmltopdf desta versão ignora colunas CSS). */
         .registro .conteudo-programatico .cp-2col { width: 100%; border-collapse: collapse; }
-        .registro .conteudo-programatico .cp-2col td { width: 50%; vertical-align: top; padding: 0 10px 0 0; }
+        /* border/height zerados de propósito: ".registro .dados td" é seletor
+           descendente e também alcança estes td, que ficam dentro de uma célula
+           da grade — sem isto cada coluna ganha uma moldura de 1px e a altura
+           mínima de 26px da grade. */
+        .registro .conteudo-programatico .cp-2col td { width: 50%; vertical-align: top;
+                                                       border: 0; height: auto; padding: 0 10px 0 0; }
         .registro .conteudo-programatico .cp-2col td + td { padding: 0 0 0 10px; }
-        /* recuo maior que o da coluna única (16px): mesmo motivo do certificado
-           (20px -> 26px), escalado na mesma proporção para este recuo menor. */
-        .registro .conteudo-programatico .cp-2col ol,
-        .registro .conteudo-programatico .cp-2col ul { padding-left: 21px; }
 
         /* Tabela de participantes */
         .registro .participantes { width: 100%; border-collapse: collapse; margin-top: 10px; }

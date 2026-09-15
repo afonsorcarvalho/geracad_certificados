@@ -192,13 +192,14 @@ class GeracadCertificadosCurso(models.Model):
 
         Conteúdo longo sai em duas colunas. O wkhtmltopdf desta versão ignora
         column-count do CSS (testado), então a divisão é feita aqui: os blocos
-        de topo do HTML (os <p>, ou os <li> quando o conteúdo é uma lista) são
-        repartidos em duas metades de texto equilibrado e remontados dentro de
-        uma tabela de duas células.
+        de topo do HTML (os <p>) são repartidos em duas metades de texto
+        equilibrado e remontados dentro de uma tabela de duas células.
 
         Devolve o HTML original quando ele é curto, quando já vem em duas
         colunas (marcador cp-2col, para o caso de o dado já ter sido
-        normalizado) ou quando não há blocos suficientes para repartir.
+        normalizado), quando não há blocos suficientes para repartir, ou
+        quando o conteúdo é uma lista única (<ol>/<ul>) — ver comentário mais
+        abaixo sobre por que listas ficam de fora.
         """
         self.ensure_one()
         html = self.conteudo_programatico or ''
@@ -236,8 +237,8 @@ class GeracadCertificadosCurso(models.Model):
             # Não descer para dentro de uma <ol>/<ul>: ela seria "consumida"
             # aqui e os <li> virariam os próprios blocos a repartir, saindo
             # soltos no HTML final (sem <ol>/<ul> em volta) e perdendo a
-            # numeração. O bloco de lista única logo abaixo é quem sabe
-            # remontar o wrapper certo, com start= na segunda coluna.
+            # numeração. Isso também é o que permite detectar, logo abaixo,
+            # que o conteúdo é uma lista única — caso em que não se reparte.
             if (pesos[maior] / float(total) > 0.85 and len(list(filhos[maior])) > 1
                     and filhos[maior].tag not in ('ol', 'ul')):
                 raiz = filhos[maior]
@@ -245,12 +246,18 @@ class GeracadCertificadosCurso(models.Model):
             break
 
         blocos = list(raiz)
-        lista = None
-        # Lista única: reparte os <li> e recria o <ol>/<ul> nas duas colunas,
-        # com start= na segunda para a numeração não recomeçar do 1.
+        # Lista única: NÃO reparte. Medido nos cursos de produção: curso 10
+        # (22 itens, média 83 caract.) foi de 176.5pt a 307.5pt (+74%) e curso
+        # 12 (24 itens, média 73 caract.) de 192.6pt a 296.0pt (+54%) ao virar
+        # duas colunas — o oposto do que a divisão busca. A causa é estrutural:
+        # cada <li> carrega recuo e marcador, um custo horizontal fixo que não
+        # encolhe quando a coluna é partida ao meio, então cada item ganha
+        # linhas mais rápido do que reduzir a quantidade de itens economiza.
+        # Uma segunda medição com listas sintéticas confirmou a direção e não
+        # achou tamanho de item (testado até 800 caract.) em que a lista passe
+        # a compensar. Por isso listas ficam de fora da divisão em colunas.
         if len(blocos) == 1 and blocos[0].tag in ('ol', 'ul'):
-            lista = blocos[0]
-            blocos = list(lista)
+            return html
         if len(blocos) < 2:
             return html
 
@@ -264,16 +271,10 @@ class GeracadCertificadosCurso(models.Model):
                 break
             acumulado += peso
 
-        def montar(parte, inicio=None):
-            html_parte = ''.join(
+        def montar(parte):
+            return ''.join(
                 lxml_html.tostring(b, encoding='unicode') for b in parte
             )
-            if lista is None:
-                return html_parte
-            # start= assume que a lista de origem numera a partir de 1; nenhum
-            # curso hoje usa start próprio.
-            attr = ' start="%d"' % inicio if inicio and lista.tag == 'ol' else ''
-            return '<%s%s>%s</%s>' % (lista.tag, attr, html_parte, lista.tag)
 
         # Divisão muito torta não compensa: a coluna cheia fica estreita, quebra
         # em mais linhas e o resultado ocupa mais altura do que a coluna única.
@@ -285,7 +286,7 @@ class GeracadCertificadosCurso(models.Model):
             '<table class="cp-2col"><tr>'
             '<td>%s</td><td>%s</td>'
             '</tr></table>'
-        ) % (montar(blocos[:corte]), montar(blocos[corte:], inicio=corte + 1))
+        ) % (montar(blocos[:corte]), montar(blocos[corte:]))
 
     def get_periodo_display(self):
         """
