@@ -378,16 +378,28 @@ class GeracadCertificadosCurso(models.Model):
         return inicio_str
 
     def get_data_conclusao_display(self):
-        """Retorna a data de conclusão formatada (dd/mm/yyyy) para o certificado."""
-        self.ensure_one()
-        if not self.date_inicio:
-            return ''
-        return self.date_inicio.strftime('%d/%m/%Y')
+        """Retorna a data de conclusão por extenso (ex.: "7 de agosto de 2026")
+        para a linha de local/data do certificado.
 
-    # Hardcoded em vez de strftime('%b'): o container roda em locale C, que
-    # devolveria 'Jan', 'Feb', 'Mar' em inglês.
+        Usa date_fim; se não preenchida (curso em um só dia, ver help do
+        campo), cai para date_inicio. Sem nenhuma das duas, retorna ''.
+        O dia não sai com zero à esquerda.
+        """
+        self.ensure_one()
+        data = self.date_fim or self.date_inicio
+        if not data:
+            return ''
+        return '%d de %s de %d' % (
+            data.day, self.MES_COMPLETO[data.month - 1], data.year,
+        )
+
+    # Hardcoded em vez de strftime('%b')/('%B'): o container roda em locale C,
+    # que devolveria 'Jan', 'Feb', 'Mar' / 'January' etc. em inglês.
     MES_ABREV = ('jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set',
                  'out', 'nov', 'dez')
+    MES_COMPLETO = ('janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+                     'julho', 'agosto', 'setembro', 'outubro', 'novembro',
+                     'dezembro')
 
     def get_dias_registro(self):
         """Datas dos 5 dias formatadas ("01/jan") para o cabeçalho das colunas
