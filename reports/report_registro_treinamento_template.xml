@@ -56,9 +56,11 @@
         .registro .participantes .col-cat { width: 11%; text-align: center; }
         .registro .participantes .col-cnh { width: 15%; text-align: center; }
         .registro .participantes .col-renach { width: 15%; text-align: center; }
-        .registro .participantes .col-data { width: 5.25%; }
-        /* Três colunas sem cabeçalho, como no formulário em papel: anotação manual */
-        .registro .participantes .col-livre { width: 5.25%; }
+        .registro .participantes .col-matricula { width: 11%; }
+        .registro .participantes .col-nome-geral { width: 28%; }
+        .registro .participantes .col-assinatura { width: 15%; }
+        .registro .participantes .col-gerencia { width: 18%; }
+        .registro .participantes .col-dia { width: 4.2%; }
         .registro .participantes .col-nota { width: 6%; }
       </style>
       <t t-foreach="docs" t-as="curso">
@@ -138,38 +140,76 @@
           </table>
 
           <!-- Participantes: uma linha por aluno cadastrado, em ordem alfabética -->
-          <table class="participantes">
-            <thead>
-              <tr>
-                <th class="col-num">Nº</th>
-                <th class="col-nome">Nome (LEGÍVEL - LETRA DE FORMA)</th>
-                <th class="col-cat">CATEGORIA CNH</th>
-                <th class="col-cnh">Nº DE REGISTRO CNH</th>
-                <th class="col-renach">Nº RENACH</th>
-                <th class="col-data"></th>
-                <th class="col-livre"></th>
-                <th class="col-livre"></th>
-                <th class="col-livre"></th>
-                <th class="col-nota">Nota</th>
-              </tr>
-            </thead>
-            <tbody>
-              <t t-foreach="curso.get_alunos_ordenados()" t-as="aluno">
+          <!-- Dias chamado uma única vez; a lista tem sempre 5 posições ('' quando o dia não foi preenchido) -->
+          <t t-set="dias" t-value="curso.get_dias_registro()"/>
+          <t t-if="curso.e_direcao_defensiva">
+            <table class="participantes">
+              <thead>
                 <tr>
-                  <td class="col-num"><t t-esc="aluno_index + 1"/></td>
-                  <td class="col-nome"><t t-esc="aluno.nome_aluno"/></td>
-                  <td class="col-cat"><t t-esc="aluno.aluno_categoria or ''"/></td>
-                  <td class="col-cnh"><t t-esc="aluno.aluno_registro or ''"/></td>
-                  <td class="col-renach"><t t-esc="aluno.aluno_renach or ''"/></td>
-                  <td class="col-data"></td>
-                  <td class="col-livre"></td>
-                  <td class="col-livre"></td>
-                  <td class="col-livre"></td>
-                  <td class="col-nota"></td>
+                  <th class="col-num" rowspan="2">Nº</th>
+                  <th class="col-nome" rowspan="2">Nome (LEGÍVEL - LETRA DE FORMA)</th>
+                  <th colspan="3">CNH</th>
+                  <th t-foreach="dias" t-as="dia" class="col-dia" rowspan="2" t-esc="dia"/>
+                  <th class="col-nota" rowspan="2">Nota</th>
                 </tr>
-              </t>
-            </tbody>
-          </table>
+                <tr>
+                  <th class="col-cat">CAT</th>
+                  <th class="col-cnh">REG</th>
+                  <th class="col-renach">RENACH</th>
+                </tr>
+              </thead>
+              <tbody>
+                <t t-foreach="curso.get_alunos_ordenados()" t-as="aluno">
+                  <tr>
+                    <td class="col-num"><t t-esc="aluno_index + 1"/></td>
+                    <td class="col-nome"><t t-esc="aluno.nome_aluno"/></td>
+                    <td class="col-cat"><t t-esc="aluno.aluno_categoria or ''"/></td>
+                    <td class="col-cnh"><t t-esc="aluno.aluno_registro or ''"/></td>
+                    <td class="col-renach"><t t-esc="aluno.aluno_renach or ''"/></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-nota"></td>
+                  </tr>
+                </t>
+              </tbody>
+            </table>
+          </t>
+          <t t-else="">
+            <table class="participantes">
+              <thead>
+                <tr>
+                  <th class="col-num">Nº</th>
+                  <th class="col-matricula">Matrícula</th>
+                  <th class="col-nome-geral">Nome (Legível)</th>
+                  <th class="col-assinatura">Assinatura</th>
+                  <th class="col-gerencia">Gerência / Empresa Contratada</th>
+                  <th t-foreach="dias" t-as="dia" class="col-dia" t-esc="dia"/>
+                  <th class="col-nota">Nota</th>
+                </tr>
+              </thead>
+              <!-- Matrícula, Assinatura e Gerência/Empresa: preenchimento manual, sem campo no modelo -->
+              <tbody>
+                <t t-foreach="curso.get_alunos_ordenados()" t-as="aluno">
+                  <tr>
+                    <td class="col-num"><t t-esc="aluno_index + 1"/></td>
+                    <td class="col-matricula"></td>
+                    <td class="col-nome-geral"><t t-esc="aluno.nome_aluno"/></td>
+                    <td class="col-assinatura"></td>
+                    <td class="col-gerencia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-dia"></td>
+                    <td class="col-nota"></td>
+                  </tr>
+                </t>
+              </tbody>
+            </table>
+          </t>
 
         </div>
       </t>
