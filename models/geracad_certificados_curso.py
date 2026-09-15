@@ -50,6 +50,38 @@ class GeracadCertificadosCurso(models.Model):
         string='Horário',
         help='Horário das aulas em texto livre (ex.: 08:00 às 12:00).',
     )
+    e_direcao_defensiva = fields.Boolean(
+        string='Direção Defensiva',
+        help='Define o tipo do Registro de Treinamento: marcado, a tabela sai '
+             'com as colunas de CNH (Categoria / Registro / RENACH); '
+             'desmarcado, sai a tabela geral (Matrícula / Assinatura / '
+             'Gerência-Empresa).',
+    )
+    data_dia_1 = fields.Date(
+        string='1º dia',
+        help='Vira o cabeçalho da coluna de presença correspondente no '
+             'Registro de Treinamento; em branco, a coluna sai sem cabeçalho.',
+    )
+    data_dia_2 = fields.Date(
+        string='2º dia',
+        help='Vira o cabeçalho da coluna de presença correspondente no '
+             'Registro de Treinamento; em branco, a coluna sai sem cabeçalho.',
+    )
+    data_dia_3 = fields.Date(
+        string='3º dia',
+        help='Vira o cabeçalho da coluna de presença correspondente no '
+             'Registro de Treinamento; em branco, a coluna sai sem cabeçalho.',
+    )
+    data_dia_4 = fields.Date(
+        string='4º dia',
+        help='Vira o cabeçalho da coluna de presença correspondente no '
+             'Registro de Treinamento; em branco, a coluna sai sem cabeçalho.',
+    )
+    data_dia_5 = fields.Date(
+        string='5º dia',
+        help='Vira o cabeçalho da coluna de presença correspondente no '
+             'Registro de Treinamento; em branco, a coluna sai sem cabeçalho.',
+    )
     instrutor_id = fields.Many2one(
         'res.partner',
         string='Instrutor',
@@ -270,6 +302,26 @@ class GeracadCertificadosCurso(models.Model):
         if not self.date_inicio:
             return ''
         return self.date_inicio.strftime('%d/%m/%Y')
+
+    # Hardcoded em vez de strftime('%b'): o container roda em locale C, que
+    # devolveria 'Jan', 'Feb', 'Mar' em inglês.
+    MES_ABREV = ('jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set',
+                 'out', 'nov', 'dez')
+
+    def get_dias_registro(self):
+        """Datas dos 5 dias formatadas ("01/jan") para o cabeçalho das colunas
+        de presença do Registro de Treinamento.
+
+        Sempre devolve 5 posições (dia vazio vira ''), para o relatório poder
+        iterar sem checar quantos dias foram preenchidos.
+        """
+        self.ensure_one()
+        dias = [self.data_dia_1, self.data_dia_2, self.data_dia_3,
+                self.data_dia_4, self.data_dia_5]
+        return [
+            '%02d/%s' % (d.day, self.MES_ABREV[d.month - 1]) if d else ''
+            for d in dias
+        ]
 
     @api.onchange('instrutor_id')
     def _onchange_instrutor_id(self):
