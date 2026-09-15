@@ -187,6 +187,43 @@ class GeracadCertificadosCurso(models.Model):
     # em duas.
     LIMITE_TEXTO_DUAS_COLUNAS = 850
 
+    def _bloco_sem_texto(self, elemento):
+        """True se `elemento` (e sua subárvore) não carrega texto visível."""
+        texto = elemento.text_content()
+        return not texto or not texto.strip()
+
+    def _stripar_bordas_vazias(self, pai):
+        """Remove, dos filhos diretos de `pai`, a sequência inicial e a final
+        que não carregam texto (ver _bloco_sem_texto). Blocos vazios NO MEIO
+        são preservados — uma linha em branco deixada de propósito entre duas
+        seções não é nossa para tirar.
+
+        Qualquer .tail (texto solto) de um bloco removido é preservado,
+        prendendo-o no texto do vizinho que sobrar (ou de `pai`, se não sobrar
+        vizinho desse lado) — para não perder conteúdo por causa de um <p>
+        vazio colado nele.
+        """
+        filhos = list(pai)
+        inicio = 0
+        while inicio < len(filhos) and self._bloco_sem_texto(filhos[inicio]):
+            removido = filhos[inicio]
+            if removido.tail and removido.tail.strip():
+                pai.text = (pai.text or '') + removido.tail
+            pai.remove(removido)
+            inicio += 1
+        filhos = filhos[inicio:]
+        fim = len(filhos) - 1
+        while fim >= 0 and self._bloco_sem_texto(filhos[fim]):
+            removido = filhos[fim]
+            if removido.tail and removido.tail.strip():
+                anterior = filhos[fim - 1] if fim > 0 else None
+                if anterior is not None:
+                    anterior.tail = (anterior.tail or '') + removido.tail
+                else:
+                    pai.text = (pai.text or '') + removido.tail
+            pai.remove(removido)
+            fim -= 1
+
     def get_conteudo_programatico_render(self):
         """HTML do conteúdo programático pronto para o certificado.
 
@@ -195,11 +232,15 @@ class GeracadCertificadosCurso(models.Model):
         de topo do HTML (os <p>) são repartidos em duas metades de texto
         equilibrado e remontados dentro de uma tabela de duas células.
 
-        Devolve o HTML original quando ele é curto, quando já vem em duas
-        colunas (marcador cp-2col, para o caso de o dado já ter sido
-        normalizado), quando não há blocos suficientes para repartir, ou
-        quando o conteúdo é uma lista única (<ol>/<ul>) — ver comentário mais
-        abaixo sobre por que listas ficam de fora.
+        Antes de mais nada, blocos vazios (sem texto) do início e do fim do
+        conteúdo são removidos — ver comentário junto de _stripar_bordas_vazias
+        sobre o porquê. Devolve esse HTML já limpo em todo caminho de saída:
+        quando ele é curto, quando já vem em duas colunas (marcador cp-2col,
+        para o caso de o dado já ter sido normalizado — esse caso não passa
+        pela limpeza, pois já foi normalizado antes), quando não há blocos
+        suficientes para repartir, ou quando o conteúdo é uma lista única
+        (<ol>/<ul>) — ver comentário mais abaixo sobre por que listas ficam de
+        fora.
         """
         self.ensure_one()
         html = self.conteudo_programatico or ''
@@ -212,6 +253,39 @@ class GeracadCertificadosCurso(models.Model):
             raiz = lxml_html.fragment_fromstring(html, create_parent='div')
         except Exception:
             return html
+
+        # Conteúdo colado do Word: além do texto real, vem com parágrafos
+        # vazios do editor (<p></p>, <p><br></p>) e, às vezes, o parágrafo de
+        # quebra de página que o Word insere depois do <div> que envolve tudo.
+        # Isso é ~90pt de espaço morto. O certificado é calibrado para caber
+        # numa folha só com pouquíssima folga (~22px, ver
+        # reports/report_certificado_template.xml) porque o bloco de
+        # assinaturas fica ancorado ao fundo da folha (vertical-align: bottom)
+        # — então esse espaço morto é o que empurra QR e assinaturas para a
+        # página 2. Medido em produção no curso "Direção Defensiva -
+        # Reciclagem": o certificado de WANDERSON NUNES SANTOS foi de 2
+        # páginas para 1 ao remover esses blocos; nos demais alunos da mesma
+        # turma a folga no rodapé praticamente dobrou (de ~43-53pt para
+        # ~85-105pt). Por isso a limpeza roda incondicionalmente, antes de
+        # qualquer outra decisão — o espaço morto prejudica a coluna única
+        # tanto quanto a divisão em duas colunas.
+        #
+        # As sobras costumam estar em dois níveis: soltas no topo (o
+        # parágrafo de quebra de página do Word, por exemplo) e dentro do
+        # <div> que envolve o conteúdo real (parágrafo vazio antes da tabela,
+        # parágrafos vazios depois dela) — por isso a limpeza roda no nível
+        # de cima e, se sobrar um único <div> envolvendo tudo, de novo dentro
+        # dele.
+        self._stripar_bordas_vazias(raiz)
+        if len(raiz) == 1 and raiz[0].tag == 'div':
+            self._stripar_bordas_vazias(raiz[0])
+
+        html = (raiz.text or '') + ''.join(
+            lxml_html.tostring(filho, encoding='unicode') for filho in raiz
+        )
+        if not html.strip():
+            return ''
+
         if len(raiz.text_content() or '') <= self.LIMITE_TEXTO_DUAS_COLUNAS:
             return html
 
